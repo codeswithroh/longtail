@@ -1,0 +1,18 @@
+{
+  "name": "longtail",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "census": "node packages/engine/src/cli/census.ts",
+    "paper": "node packages/engine/src/cli/paper.ts",
+    "backtest": "node packages/engine/src/cli/backtest.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  },
+  "packageManager": "pnpm@11.13.0"
+}
