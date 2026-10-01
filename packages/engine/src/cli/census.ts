@@ -80,8 +80,48 @@ try {
   hip4 = { error: String(e) };
 }
 
+// Concentration curve: share of 24h volume captured by the top x% of markets.
+function lorenz(xs: Market[], points = 50) {
+  const v = xs.map((m) => m.volume24h).sort((a, b) => b - a);
+  const total = v.reduce((a, b) => a + b, 0) || 1;
+  const out: { marketsPct: number; volumePct: number }[] = [{ marketsPct: 0, volumePct: 0 }];
+  let cum = 0;
+  let next = 1;
+  for (let i = 0; i < v.length; i++) {
+    cum += v[i]!;
+    const pct = ((i + 1) / v.length) * 100;
+    if (pct >= (next * 100) / points || i === v.length - 1) {
+      out.push({ marketsPct: +pct.toFixed(2), volumePct: +((cum / total) * 100).toFixed(2) });
+      next++;
+    }
+  }
+  return out;
+}
+
+const SPREAD_BINS = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1];
+function spreadHist(xs: Market[]) {
+  const counts = new Array(SPREAD_BINS.length).fill(0) as number[];
+  let oneSided = 0;
+  for (const m of xs) {
+    if (m.bestBid === null || m.bestAsk === null) {
+      oneSided++;
+      continue;
+    }
+    const s = m.bestAsk - m.bestBid;
+    const i = SPREAD_BINS.findIndex((hi) => s <= hi + 1e-9);
+    counts[i === -1 ? SPREAD_BINS.length - 1 : i]!++;
+  }
+  const n = xs.length || 1;
+  const label = (i: number) => `${i === 0 ? 0 : Math.round(SPREAD_BINS[i - 1]! * 100)}–${Math.round(SPREAD_BINS[i]! * 100)}¢`;
+  return [...counts.map((c, i) => ({ label: label(i), share: c / n })), { label: "one-sided", share: oneSided / n }];
+}
+
 const report = {
   generatedAt: new Date().toISOString(),
+  charts: {
+    lorenz: lorenz(markets),
+    spreadHist: { live: spreadHist(live), slow: spreadHist(slow) },
+  },
   polymarket: {
     all: stats(markets),
     live: stats(live),

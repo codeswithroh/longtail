@@ -7,7 +7,9 @@
     "test": "vitest run",
     "census": "node packages/engine/src/cli/census.ts",
     "paper": "node packages/engine/src/cli/paper.ts",
-    "backtest": "node packages/engine/src/cli/backtest.ts"
+    "backtest": "node packages/engine/src/cli/backtest.ts",
+    "web": "pnpm --filter web dev",
+    "web:build": "pnpm --filter web build"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
