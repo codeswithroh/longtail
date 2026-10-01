@@ -15,7 +15,7 @@ function Big({ label, value, format, sub, signed, toneValue }: { label: string; 
     <div className="min-w-0">
       <div className="text-[11px] uppercase tracking-[0.06em] text-muted">{label}</div>
       <div className={clsx("num mt-1 whitespace-nowrap text-[22px] leading-none", toneValue === undefined ? "text-text" : tone(toneValue))}>
-        <NumberFlow value={value} format={{ ...format, signDisplay: signed ? "exceptZero" : "auto" }} />
+        <NumberFlow value={value} locales="en-US" format={{ ...format, signDisplay: signed ? "exceptZero" : "auto" }} />
       </div>
       {sub && <div className="mt-1.5 text-[12px] text-muted">{sub}</div>}
     </div>
