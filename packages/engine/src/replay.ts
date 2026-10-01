@@ -4,6 +4,7 @@ import { Portfolio } from "./paper.ts";
 import { makeQuote, DEFAULT_QUOTE, type QuoteConfig } from "./quoter.ts";
 import { decide, DEFAULT_RISK, type RiskConfig } from "./risk.ts";
 import { assessRules } from "./rules.ts";
+import { applyCalibration, type CalibrationCurve } from "./calibration.ts";
 import { simulateFills } from "./paper.ts";
 import { ToxicityTracker, flowImbalance } from "./toxicity.ts";
 
@@ -37,6 +38,8 @@ export interface ReplayOptions {
   quote?: QuoteConfig;
   /** Disable the risk engine: always quote both sides at the base spread (control arm). */
   naive?: boolean;
+  /** Map market-implied fair values through a calibration curve fitted on other markets. */
+  calibration?: CalibrationCurve | null;
 }
 
 const emptyBook = (id: string, ts: number): Book => ({ marketId: id, ts, bids: [], asks: [] });
@@ -80,18 +83,21 @@ export function replayMarket(input: ReplayInput, opts: ReplayOptions = {}): Repl
     if (lp) signals.push({ name: "last_print", p: lp.p, weight: lp.weight });
     const hs = historyStats(pastHist.slice(-72));
     if (hs) signals.push({ name: "history_ewma", p: hs.ewma, weight: 0.5 });
-    const f = combine(signals, m.endTime === null ? null : (m.endTime - t) / 3600_000, hs?.volLogit ?? null);
-    lastFair = f.fair;
+    const raw = combine(signals, m.endTime === null ? null : (m.endTime - t) / 3600_000, hs?.volLogit ?? null);
+    const f = opts.calibration ? { ...raw, fair: applyCalibration(opts.calibration, raw.fair) } : raw;
+    lastFair = raw.fair;
 
     tox.update(t, () => f.fair);
     const pos = pf.get(m.id, m.category);
     const hourAgo = pastHist.filter((p) => p.ts <= t - 3600_000).at(-1)?.price;
-    const move = hourAgo === undefined ? null : f.fair - hourAgo;
+    const move = hourAgo === undefined ? null : raw.fair - hourAgo;
+    const sixAgo = pastHist.filter((p) => p.ts <= t - 6 * 3600_000).at(-1)?.price;
+    const drift = sixAgo === undefined ? null : raw.fair - sixAgo;
     const exposure = { position: pos.shares, marketPnl: pf.pnl(m.id, f.fair), categoryUsd: Math.abs(pos.shares * f.fair), grossUsd: Math.abs(pos.shares * f.fair) };
     const mm = { ...m, acceptingOrders: true };
     const decision = opts.naive
       ? { quote: true, allowBid: true, allowAsk: true, sizeScale: 1, extraHalfSpread: 0, reasons: [] }
-      : decide(mm, f, rules, tox.score(m.id, m.category), flowImbalance(pastTrades.slice(-100), t), move, exposure, t, risk);
+      : decide(mm, f, rules, tox.score(m.id, m.category), flowImbalance(pastTrades.slice(-100), t), move, exposure, t, risk, drift);
     if (!decision.quote) {
       const key = decision.reasons.at(-1)?.split(/[:(\d]/)[0]?.trim() ?? "other";
       pulled[key] = (pulled[key] ?? 0) + 1;
@@ -140,6 +146,8 @@ export interface ReplaySummary {
   /** PnL over the sum of peak per-market exposure: a conservative return on capital. */
   returnOnPeakCapital: number;
   worstMarketUsd: number;
+  /** Market-days spent with a live quote: the exposure base for reward income. */
+  marketDaysQuoted: number;
   byCategory: Record<string, { markets: number; pnlUsd: number; volumeUsd: number }>;
 }
 
@@ -164,6 +172,7 @@ export function summarize(results: ReplayResult[]): ReplaySummary {
     winRate: traded.length ? traded.filter((r) => r.pnlUsd > 0).length / traded.length : 0,
     returnOnPeakCapital: capital > 0 ? sum((r) => r.pnlUsd) / capital : 0,
     worstMarketUsd: traded.reduce((a, r) => Math.min(a, r.pnlUsd), 0),
+    marketDaysQuoted: results.reduce((a, r) => a + r.hoursQuoted, 0) / 24,
     byCategory,
   };
 }

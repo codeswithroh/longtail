@@ -9,7 +9,8 @@
     "paper": "node packages/engine/src/cli/paper.ts",
     "backtest": "node packages/engine/src/cli/backtest.ts",
     "web": "pnpm --filter web dev",
-    "web:build": "pnpm --filter web build"
+    "web:build": "pnpm --filter web build",
+    "rewards": "node packages/engine/src/cli/rewards.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

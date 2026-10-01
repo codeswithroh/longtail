@@ -134,3 +134,71 @@ describe("replay", () => {
     expect(r.fills).toBe(0);
   });
 });
+
+import { orderScore, qMin, rewardShare } from "../src/rewards.ts";
+
+describe("liquidity rewards", () => {
+  it("matches Polymarket's worked example", () => {
+    // mid 0.50, v = 3c: 100 bid @0.49 + 200 bid @0.48 + 100 ask(NO side) @0.51 on side one
+    const qOne = orderScore(3, 1) * 100 + orderScore(3, 2) * 200 + orderScore(3, 1) * 100;
+    expect(qOne).toBeCloseTo(((2 / 3) ** 2) * 200 + ((1 / 3) ** 2) * 200, 6);
+    expect(orderScore(3, 3)).toBe(0);
+  });
+  it("needs two sides outside [0.10, 0.90]", () => {
+    expect(qMin(100, 0, 0.05)).toBe(0);
+    expect(qMin(90, 0, 0.5)).toBe(30);
+  });
+  it("splits with the rest of the book, ignoring orders under min size", () => {
+    const cfg = { daily: 10, maxSpread: 4, minSize: 20 };
+    const quote = { marketId: "m", bid: { price: 0.48, size: 50 }, ask: { price: 0.52, size: 50 }, fair: 0.5, reservation: 0.5, halfSpread: 0.02 };
+    const thin = { marketId: "m", ts: 0, bids: [{ price: 0.4, size: 500 }, { price: 0.49, size: 5 }], asks: [{ price: 0.6, size: 500 }] };
+    const r = rewardShare(quote, thin, cfg);
+    expect(r.share).toBeGreaterThan(0.99); // venue orders sit outside the 4c band; the 5-share bid is below min size
+  });
+});
+
+import { applyCalibration, brier, fitCalibration } from "../src/calibration.ts";
+
+describe("calibration", () => {
+  it("learns a long-shot bias and stays monotone", () => {
+    // Markets priced ~0.15 resolve YES only 5% of the time; ~0.85 resolve YES 95%.
+    const samples = [
+      ...Array.from({ length: 400 }, (_, i) => ({ p: 0.15, y: i < 20 ? 1 : 0 })),
+      ...Array.from({ length: 400 }, (_, i) => ({ p: 0.85, y: i < 380 ? 1 : 0 })),
+    ];
+    const c = fitCalibration(samples);
+    expect(applyCalibration(c, 0.15)).toBeLessThan(0.08);
+    expect(applyCalibration(c, 0.85)).toBeGreaterThan(0.9);
+    for (let p = 0.05; p < 1; p += 0.1) expect(applyCalibration(c, p + 0.05)).toBeGreaterThanOrEqual(applyCalibration(c, p) - 1e-12);
+  });
+  it("shrinks sparse bins toward the diagonal", () => {
+    const c = fitCalibration([{ p: 0.5, y: 1 }]);
+    expect(applyCalibration(c, 0.5)).toBeGreaterThan(0.5);
+    expect(applyCalibration(c, 0.5)).toBeLessThan(0.55);
+  });
+  it("scores Brier", () => {
+    expect(brier([{ p: 1, y: 1 }, { p: 0, y: 0 }])).toBe(0);
+    expect(brier([{ p: 0.5, y: 1 }])).toBe(0.25);
+  });
+});
+
+describe("drift guard", () => {
+  const f = { fair: 0.3, sigma: 0.02, signals: [] };
+  const m = market();
+  it("stops bidding into a slide and offering into a rise", () => {
+    const flatEx = { position: 0, marketPnl: 0, categoryUsd: 0, grossUsd: 0 };
+    const slide = decide(m, f, { score: 0, reasons: [] }, 0, 0, null, flatEx, NOW, DEFAULT_RISK, -0.1);
+    expect(slide.allowBid).toBe(false);
+    expect(slide.allowAsk).toBe(true);
+    const rise = decide(m, f, { score: 0, reasons: [] }, 0, 0, null, flatEx, NOW, DEFAULT_RISK, 0.1);
+    expect(rise.allowAsk).toBe(false);
+  });
+});
+
+describe("price-threshold markets", () => {
+  it("are live-information", () => {
+    expect(infoRegime(market({ question: "Will Amazon.com, Inc. (AMZN) hit (LOW) $232 in October?", category: "Finance" }))).toBe("live");
+    expect(infoRegime(market({ question: "Will Gold close above $4,000 on Friday?", category: "Finance" }))).toBe("live");
+    expect(infoRegime(market({ question: "Will Revolut's valuation reach $115B by October 31?", category: "Business" }))).toBe("slow");
+  });
+});

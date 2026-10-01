@@ -45,7 +45,9 @@ const OBJECTIVE_SOURCE = /(chainlink|pyth|binance|coinbase|hypercore|bls\.gov|fe
  */
 export type InfoRegime = "live" | "slow";
 
-const LIVE_CATEGORIES = /^(sports|tennis|soccer|football|basketball|baseball|hockey|nba|nfl|mlb|nhl|mma|ufc|boxing|cricket|golf|f1|formula 1|esports|cs2|counter-strike|league of legends|dota|valorant|weather|temperature)$/i;
+// Matched against the venue's topic tag. Sports and esports settle from public game feeds;
+// weather and price markets settle from public data streams.
+const LIVE_CATEGORIES = /\b(sports|nfl|cfb|ncaa|nhl|nba|mlb|wnba|mls|soccer|football|basketball|baseball|hockey|ucl|uel|uecl|epl|la liga|serie a|bundesliga|ligue 1|tennis|atp|wta|golf|pga|f1|formula 1|nascar|mma|ufc|boxing|cricket|ipl|esports|vct|valorant|val|lol|league of legends|cs2|counter-strike|dota|ppa|pickleball|weather|temperature|up or down|bitcoin|ethereum|solana|xrp|dogecoin|bnb|hype)\b/i;
 const LIVE_QUESTION = [
   /\bup or down\b/i,
   /\b(highest|lowest) temperature\b/i,
@@ -54,10 +56,14 @@ const LIVE_QUESTION = [
   /\bvs\.?\b/i,
   /\bprice of (bitcoin|ethereum|solana|btc|eth|sol)\b.*\b(at|on)\b/i,
   /\b(above|below|between) \$?[\d,.]+k?\b.*\b(on|at) [A-Z][a-z]+ \d{1,2}\b/i,
+  // Price thresholds on traded assets settle from a live feed.
+  /\bhit \((low|high)\)/i,
+  /\b(close|closes|trade|trades|settle|settles|finish|finishes) (above|below|at|over|under) \$[\d,.]+/i,
+  /\((?:[A-Z]{1,5})\)/,
 ];
 
 export function infoRegime(m: Market): InfoRegime {
-  if (LIVE_CATEGORIES.test(m.category.trim())) return "live";
+  if (LIVE_CATEGORIES.test(m.category)) return "live";
   if (m.venue === "hip4" && /≥|touches/.test(m.question)) return "live";
   return LIVE_QUESTION.some((r) => r.test(m.question)) ? "live" : "slow";
 }

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { ConcentrationChart, SpreadHistogram } from "@/components/charts";
+import { RankBuckets, SpreadHistogram } from "@/components/charts";
 import { Card, Empty, Freshness, PageHeader, Stat } from "@/components/ui";
 import { readData, type Census } from "@/lib/data";
 import { cents, int, pct, usd } from "@/lib/format";
@@ -20,6 +20,9 @@ export default async function ProblemPage() {
   const { polymarket: pm, charts } = c.data;
   const hip4 = c.data.hip4 && "markets" in c.data.hip4 ? c.data.hip4 : null;
   const lt = pm.addressableLongTail;
+  const rw = c.data.rewards;
+  const bottom = charts.rankBuckets.at(-1);
+  const top = charts.rankBuckets[0];
 
   return (
     <div className="space-y-6">
@@ -37,17 +40,17 @@ export default async function ProblemPage() {
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-md border border-border bg-surface p-5 lg:grid-cols-4">
         <Stat label="Open markets" value={int(pm.all.markets)} sub={`${int(pm.slow.markets)} slow-information · ${int(pm.live.markets)} live`} />
-        <Stat label="Volume in top 10% of markets" value={pct(pm.all.top10PctShare)} sub={`top 1% alone: ${pct(pm.all.top1PctShare)}`} tone="text-warn" />
-        <Stat label="Traded $0 in 24h" value={pct(pm.all.zeroDaily)} sub={`under $1k/day: ${pct(pm.all.under1kDaily)}`} />
+        <Stat label={`Volume in the top ${int(top?.markets)} markets`} value={pct(top?.volumeShare)} sub={`top 1%: ${pct(pm.all.top1PctShare)} · bottom 90%: ${pct(bottom?.volumeShare, 1)}`} tone="text-warn" />
+        <Stat label="Slow markets that traded $0" value={pct(pm.slow.zeroDaily)} sub={`under $1k/day: ${pct(pm.slow.under1kDaily)} · last 24h`} />
         <Stat label="Addressable long tail" value={int(lt.markets)} sub="slow-information, clean rules, ends < 120d, < $1k/day" tone="text-accent" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card title="Volume concentration" note="cumulative share of 24h volume vs. share of markets">
-          <ConcentrationChart data={charts.lorenz} />
+        <Card title="Where the volume goes" note="share of 24h volume by market rank">
+          <RankBuckets data={charts.rankBuckets} />
           <p className="mt-3 text-[12px] leading-relaxed text-muted">
-            The dashed line is what an evenly traded catalog would look like. The curve hugging the top-left corner means a handful of headline markets
-            take nearly all the flow; everything else waits for a counterparty.
+            {int(top?.markets)} headline markets take {pct(top?.volumeShare)} of all volume. The bottom 90%, {int(bottom?.markets)} markets, wait for a
+            counterparty that never comes.
           </p>
         </Card>
         <Card title="Quoted spread by regime" note="share of markets in each spread bucket">
@@ -58,6 +61,21 @@ export default async function ProblemPage() {
           </p>
         </Card>
       </div>
+
+      {rw && (
+        <Card title="The money is already there" note="Polymarket liquidity rewards, current configs">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4">
+            <Stat label="Rewards paid to makers" value={`${usd(rw.all.dailyUsd)}/day`} sub={`${int(rw.all.markets)} markets`} />
+            <Stat label="On the addressable long tail" value={`${usd(rw.addressableLongTail.dailyUsd)}/day`} sub={`${int(rw.addressableLongTail.markets)} markets · ≈${usd(rw.addressableLongTail.dailyUsd * 365)}/yr`} tone="text-gain" />
+            <Stat label="On markets with zero volume" value={`${usd(rw.zeroVolumeAddressable.dailyUsd)}/day`} sub={`${int(rw.zeroVolumeAddressable.markets)} markets nobody trades`} />
+            <Stat label="Median per market" value={`${usd(rw.addressableLongTail.medianDailyUsd)}/day`} sub="split pro-rata among makers inside the band" />
+          </div>
+          <p className="mt-4 text-[12px] leading-relaxed text-muted">
+            Venues already pay makers to quote these markets; in a book with $3 of depth there is rarely anyone else inside the reward band. Longtail's job is
+            to collect that subsidy without being picked off, which is what the risk engine and the backtest are about.
+          </p>
+        </Card>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card title="Addressable long tail, sampled books" note={`${int(lt.sampledBooks)} live order books`}>

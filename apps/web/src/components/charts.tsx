@@ -10,6 +10,26 @@ const tooltip = {
   cursor: { fill: "rgba(44,176,200,0.06)" },
 };
 
+/** 24h volume share by market-rank bucket. */
+export function RankBuckets({ data }: { data: { label: string; markets: number; volumeShare: number }[] }) {
+  const rows = data.map((d) => ({ ...d, pct: +(d.volumeShare * 100).toFixed(1) }));
+  return (
+    <ResponsiveContainer width="100%" height={240}>
+      <BarChart data={rows} layout="vertical" margin={{ top: 4, right: 48, bottom: 4, left: 8 }}>
+        <CartesianGrid stroke={C.grid} horizontal={false} />
+        <XAxis type="number" domain={[0, 100]} tick={tick} tickFormatter={(v) => `${v}%`} stroke={C.grid} />
+        <YAxis type="category" dataKey="label" tick={tick} width={84} stroke={C.grid} />
+        <Tooltip {...tooltip} formatter={(v, _n, item) => [`${v}% of 24h volume`, `${(item.payload as { markets: number }).markets.toLocaleString()} markets`]} />
+        <Bar dataKey="pct" isAnimationActive={false} label={{ position: "right", fill: C.text, fontSize: 11, fontFamily: "var(--font-plex-mono)", formatter: (v: unknown) => `${v}%` }}>
+          {rows.map((r, i) => (
+            <Cell key={r.label} fill={i === rows.length - 1 ? C.warn : C.accent} />
+          ))}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 /** Share of 24h volume held by the top x% of markets. */
 export function ConcentrationChart({ data }: { data: { marketsPct: number; volumePct: number }[] }) {
   return (

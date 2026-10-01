@@ -28,15 +28,33 @@ const roundDown = (p: number, tick: number) => Math.floor(p / tick + 1e-9) * tic
 const roundUp = (p: number, tick: number) => Math.ceil(p / tick - 1e-9) * tick;
 const fix = (p: number) => Math.round(p * 1e6) / 1e6;
 
+export interface RewardBand {
+  /** Max scoring distance from the midpoint, cents. */
+  maxSpreadCents: number;
+  minSize: number;
+}
+
 /**
  * Inventory-skewed two-sided quote for a binary. Post-only: never crosses the
  * venue's opposite best, so every fill is passive.
  */
-export function makeQuote(m: Market, book: Book, f: Forecast, position: number, risk: RiskDecision, cfg: QuoteConfig = DEFAULT_QUOTE): Quote {
+export function makeQuote(
+  m: Market,
+  book: Book,
+  f: Forecast,
+  position: number,
+  risk: RiskDecision,
+  cfg: QuoteConfig = DEFAULT_QUOTE,
+  reward?: RewardBand,
+): Quote {
   const tick = Math.max(m.tickSize, 0.001);
   const posUsd = position * f.fair;
   const reservation = f.fair - (cfg.skewPer100Usd * posUsd) / 100;
-  const halfSpread = Math.max(cfg.minHalfSpread, cfg.sigmaMult * f.sigma) + risk.extraHalfSpread;
+  let halfSpread = Math.max(cfg.minHalfSpread, cfg.sigmaMult * f.sigma) + risk.extraHalfSpread;
+  // Step inside a reward band only when the risk-based spread is already close to it:
+  // rewards pay for a small concession, never for quoting a market we'd otherwise fear.
+  const band = reward ? (0.85 * reward.maxSpreadCents) / 100 : 0;
+  if (reward && halfSpread > band && halfSpread <= 1.5 * band) halfSpread = band;
 
   let bidPx = roundDown(reservation - halfSpread, tick);
   let askPx = roundUp(reservation + halfSpread, tick);
@@ -48,7 +66,8 @@ export function makeQuote(m: Market, book: Book, f: Forecast, position: number, 
   askPx = fix(Math.min(1 - tick, askPx));
 
   const sideUsd = cfg.baseUsd * risk.sizeScale;
-  const size = (px: number) => Math.max(m.minSize, Math.floor(sideUsd / Math.max(px, 0.05)));
+  const minShares = Math.max(m.minSize, reward?.minSize ?? 0);
+  const size = (px: number) => Math.max(minShares, Math.floor(sideUsd / Math.max(px, 0.05)));
   // Smaller size on the side that adds to inventory.
   const lean = Math.max(0.25, 1 - Math.abs(posUsd) / 200);
 

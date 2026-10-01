@@ -6,3 +6,5 @@ export * from "./quoter.ts";
 export * from "./paper.ts";
 export * from "./replay.ts";
 export * from "./llm.ts";
+export * from "./rewards.ts";
+export * from "./calibration.ts";

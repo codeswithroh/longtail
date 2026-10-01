@@ -30,8 +30,10 @@ export interface RegimeStats {
 
 export interface Census {
   generatedAt: string;
+  rewards: Record<"all" | "addressable" | "addressableLongTail" | "zeroVolumeAddressable", { markets: number; dailyUsd: number; medianDailyUsd: number }> | null;
   charts: {
     lorenz: { marketsPct: number; volumePct: number }[];
+    rankBuckets: { label: string; markets: number; volumeShare: number }[];
     spreadHist: { live: { label: string; share: number }[]; slow: { label: string; share: number }[] };
   };
   polymarket: {

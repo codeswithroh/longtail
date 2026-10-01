@@ -103,20 +103,30 @@ export async function forecastMarket(
 ): Promise<Forecast> {
   const signals: Signal[] = [];
   const mp = microprice(book);
-  if (mp !== null) {
-    const top = (book.bids[0]?.size ?? 0) * (book.bids[0]?.price ?? 0) + (book.asks[0]?.size ?? 0) * (book.asks[0]?.price ?? 0);
-    signals.push({ name: "microprice", p: mp, weight: Math.min(1, top / 500) * 0.8 });
+  const bestBid = book.bids[0]?.price;
+  const bestAsk = book.asks[0]?.price;
+  if (mp !== null && bestBid !== undefined && bestAsk !== undefined) {
+    // A tight two-sided book is strong evidence even when the resting size is small:
+    // anyone could arbitrage a fair value outside it. Trust it by tightness first, size second.
+    const top = (book.bids[0]?.size ?? 0) * bestBid + (book.asks[0]?.size ?? 0) * bestAsk;
+    const tightness = Math.max(0, 1 - (bestAsk - bestBid) / 0.15);
+    signals.push({ name: "microprice", p: mp, weight: 0.9 * tightness * (0.5 + 0.5 * Math.min(1, top / 200)) });
   }
   const vw = decayedVwap(trades, now);
   if (vw) signals.push({ name: "trade_vwap", p: vw.p, weight: vw.weight });
   const lp = lastPrint(trades, now);
   if (lp) signals.push({ name: "last_print", p: lp.p, weight: lp.weight });
-  const hs = historyStats(history);
-  if (hs) signals.push({ name: "history_ewma", p: hs.ewma, weight: 0.5 });
+  const hs = historyStats(history, 6);
+  if (hs) signals.push({ name: "history_ewma", p: hs.ewma, weight: 0.25 });
   for (const ext of external) {
     const r = await ext.forecast(market, { book, recent: trades }).catch(() => null);
     if (r) signals.push({ name: ext.name, p: r.p, weight: Math.max(0, Math.min(1, r.confidence)) });
   }
   const hoursToEnd = market.endTime === null ? null : (market.endTime - now) / 3600_000;
-  return combine(signals, hoursToEnd, hs?.volLogit ?? null);
+  const f = combine(signals, hoursToEnd, hs?.volLogit ?? null);
+  // Inside a tight book the venue's own prices bound fair value.
+  if (bestBid !== undefined && bestAsk !== undefined && bestAsk - bestBid <= 0.1) {
+    f.fair = Math.min(bestAsk, Math.max(bestBid, f.fair));
+  }
+  return f;
 }

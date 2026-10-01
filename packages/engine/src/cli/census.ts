@@ -116,10 +116,40 @@ function spreadHist(xs: Market[]) {
   return [...counts.map((c, i) => ({ label: label(i), share: c / n })), { label: "one-sided", share: oneSided / n }];
 }
 
+// Liquidity rewards (written by `pnpm rewards`): USDC per day paid to makers per market.
+const rewardsFile = "data/pm-rewards.json";
+const REWARDS: Record<string, { daily: number; maxSpread: number; minSize: number }> = existsSync(rewardsFile)
+  ? JSON.parse(readFileSync(rewardsFile, "utf8"))
+  : {};
+const rewardStats = (xs: Market[]) => {
+  const r = xs.flatMap((m) => (REWARDS[m.groupId] ? [REWARDS[m.groupId]!.daily] : []));
+  return { markets: r.length, dailyUsd: Math.round(r.reduce((a, b) => a + b, 0)), medianDailyUsd: q(r, 0.5) };
+};
+
+// Volume share by market-rank bucket: easier to read than a curve when 2% of markets hold ~all volume.
+function rankBuckets(xs: Market[]) {
+  const v = xs.map((m) => m.volume24h).sort((a, b) => b - a);
+  const total = v.reduce((a, b) => a + b, 0) || 1;
+  const cuts: [string, number, number][] = [["top 0.1%", 0, 0.001], ["0.1–1%", 0.001, 0.01], ["1–10%", 0.01, 0.1], ["bottom 90%", 0.1, 1]];
+  return cuts.map(([label, lo, hi]) => {
+    const slice = v.slice(Math.floor(lo * v.length), Math.floor(hi * v.length));
+    return { label, markets: slice.length, volumeShare: slice.reduce((a, b) => a + b, 0) / total };
+  });
+}
+
 const report = {
   generatedAt: new Date().toISOString(),
+  rewards: Object.keys(REWARDS).length
+    ? {
+        all: rewardStats(markets),
+        addressable: rewardStats(addressable),
+        addressableLongTail: rewardStats(longTail),
+        zeroVolumeAddressable: rewardStats(addressable.filter((m) => m.volume24h === 0)),
+      }
+    : null,
   charts: {
     lorenz: lorenz(markets),
+    rankBuckets: rankBuckets(markets),
     spreadHist: { live: spreadHist(live), slow: spreadHist(slow) },
   },
   polymarket: {

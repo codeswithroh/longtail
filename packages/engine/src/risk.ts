@@ -22,6 +22,8 @@ export interface RiskConfig {
   maxToxicity: number;
   /** A move of this many sigmas within the last hour counts as a news shock. */
   shockSigmas: number;
+  /** A 6h trend of this many sigmas blocks the side that would trade into it (0 = off). */
+  driftSigmas: number;
   /** Avoid the tails, where a binary is mostly a jump bet. */
   minFair: number;
   maxFair: number;
@@ -39,6 +41,7 @@ export const DEFAULT_RISK: RiskConfig = {
   maxRuleScore: 0.45,
   maxToxicity: 0.04,
   shockSigmas: 4,
+  driftSigmas: 3,
   minFair: 0.04,
   maxFair: 0.96,
 };
@@ -72,6 +75,7 @@ export function decide(
   ex: Exposure,
   now: number,
   cfg: RiskConfig = DEFAULT_RISK,
+  drift6h: number | null = null,
 ): RiskDecision {
   const reasons: string[] = [];
   const hoursToEnd = m.endTime === null ? Infinity : (m.endTime - now) / 3600_000;
@@ -108,6 +112,20 @@ export function decide(
     if (ex.position >= 0) allowBid = false;
     if (ex.position <= 0) allowAsk = false;
     reasons.push("portfolio cap: reduce-only");
+  }
+
+  // Don't catch a falling knife: a sustained slide means our bid keeps getting filled
+  // by sellers who know more; a sustained rise does the same to our offer.
+  if (cfg.driftSigmas > 0 && drift6h !== null) {
+    const band = cfg.driftSigmas * Math.max(f.sigma, 0.01);
+    if (drift6h < -band && ex.position >= 0) {
+      allowBid = false;
+      reasons.push(`sliding ${(drift6h * 100).toFixed(1)}c/6h: no bid`);
+    }
+    if (drift6h > band && ex.position <= 0) {
+      allowAsk = false;
+      reasons.push(`rising ${(drift6h * 100).toFixed(1)}c/6h: no offer`);
+    }
   }
 
   // Ambiguity and toxicity cost money even below the hard limits, so price them in.
