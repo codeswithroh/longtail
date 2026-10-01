@@ -40,6 +40,13 @@ export function simulateFills(quote: Quote, bookAtQuote: Book, prints: Trade[], 
   return fills;
 }
 
+/**
+ * Signed worst-case dollars at risk: a long YES position can lose shares x price,
+ * a short can lose shares x (1 - price). Marking a short long-shot at its (small)
+ * price would hide almost all of its risk.
+ */
+export const atRiskUsd = (shares: number, price: number) => (shares >= 0 ? shares * price : shares * (1 - price));
+
 export interface PositionState {
   marketId: string;
   category: string;
@@ -94,7 +101,7 @@ export class Portfolio {
     const byCategory = new Map<string, number>();
     for (const p of this.positions.values()) {
       if (p.settled) continue;
-      const usd = Math.abs(p.shares * fairOf(p.marketId));
+      const usd = Math.abs(atRiskUsd(p.shares, fairOf(p.marketId)));
       gross += usd;
       byCategory.set(p.category, (byCategory.get(p.category) ?? 0) + usd);
     }

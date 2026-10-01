@@ -1,6 +1,7 @@
 import type { Book, Market } from "@longtail/core";
 import type { Forecast } from "./forecast.ts";
 import type { RiskDecision } from "./risk.ts";
+import { atRiskUsd } from "./paper.ts";
 
 export interface QuoteConfig {
   /** USD notional per side at full size. */
@@ -48,7 +49,7 @@ export function makeQuote(
   reward?: RewardBand,
 ): Quote {
   const tick = Math.max(m.tickSize, 0.001);
-  const posUsd = position * f.fair;
+  const posUsd = atRiskUsd(position, f.fair);
   const reservation = f.fair - (cfg.skewPer100Usd * posUsd) / 100;
   let halfSpread = Math.max(cfg.minHalfSpread, cfg.sigmaMult * f.sigma) + risk.extraHalfSpread;
   // Step inside a reward band only when the risk-based spread is already close to it:

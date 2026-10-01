@@ -202,3 +202,17 @@ describe("price-threshold markets", () => {
     expect(infoRegime(market({ question: "Will Revolut's valuation reach $115B by October 31?", category: "Business" }))).toBe("slow");
   });
 });
+
+import { atRiskUsd } from "../src/paper.ts";
+
+describe("risk sizing", () => {
+  it("values a short long-shot by what it can lose, not its mark", () => {
+    expect(atRiskUsd(-1000, 0.05)).toBeCloseTo(-950, 6);
+    expect(atRiskUsd(1000, 0.05)).toBeCloseTo(50, 6);
+  });
+  it("stops adding to a short long-shot once worst-case loss hits the cap", () => {
+    const f = { fair: 0.05, sigma: 0.01, signals: [] };
+    const d = decide(market(), f, { score: 0, reasons: [] }, 0, 0, null, { position: -500, marketPnl: 0, categoryUsd: 0, grossUsd: 0 }, NOW);
+    expect(d.allowAsk).toBe(false);
+  });
+});

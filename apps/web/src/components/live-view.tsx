@@ -3,7 +3,7 @@ import NumberFlow, { type Format } from "@number-flow/react";
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
 import type { PaperMarket, PaperState } from "@/lib/data";
-import { ago, cents, prob, tone, usd } from "@/lib/format";
+import { ago, cents, pct, prob, tone, usd } from "@/lib/format";
 import { Card, Pill } from "./ui";
 
 type Filter = "quoting" | "aside" | "all";
@@ -79,6 +79,9 @@ function Row({ m, i }: { m: PaperMarket; i: number }) {
         {quoting ? <Pill tone="accent">quoting</Pill> : <Pill tone="warn">aside</Pill>}
         {reason && <div className="mt-1 line-clamp-1 max-w-[220px] text-[11px] text-muted">{reason}</div>}
       </td>
+      <td className="num py-2 text-right" title={m.rewards ? `$${m.rewards.daily.toFixed(0)}/day pool, ${m.rewards.maxSpread}¢ band` : "no reward program"}>
+        {m.rewards ? (m.rewards.share != null ? pct(m.rewards.share) : "—") : <span className="text-muted">n/a</span>}
+      </td>
       <td className="num py-2 text-right">{m.position && m.position.shares !== 0 ? Math.round(m.position.shares) : <span className="text-muted">0</span>}</td>
       <td className={clsx("num py-2 text-right", tone(m.position?.pnl))}>{m.position ? usd(m.position.pnl, { signed: true }) : "—"}</td>
     </tr>
@@ -124,12 +127,19 @@ export function LiveView({ initial }: { initial: PaperState }) {
         <span>· AI forecaster {s.llm ? `on (${s.llm.calls} calls, ${s.llm.searches} searches)` : "off"}</span>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-md border border-border bg-surface p-5 md:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-md border border-border bg-surface p-5 md:grid-cols-4 xl:grid-cols-7">
         <Big label="Markets quoted" value={s.quoting} sub={`of ${s.markets} watched`} />
         <Big label="Tightening the book" value={s.improvingSpread} sub={`median ${cents(s.medianVenueSpread, 0)} → ${cents(s.medianOurSpread, 0)}`} />
         <Big label="Fills" value={s.fills} sub={`${usd(s.volumeUsd)} volume`} />
         <Big label="Edge at fill" value={s.edgeUsd} format={money} signed toneValue={s.edgeUsd} sub="vs. fair value" />
         <Big label="Mark-to-fair PnL" value={s.pnlUsd} format={money} signed toneValue={s.pnlUsd} sub={`gross exposure ${usd(s.grossExposureUsd)}`} />
+        <Big
+          label="Rewards (est.)"
+          value={s.rewardsUsd ?? 0}
+          format={money}
+          toneValue={s.rewardsUsd ?? 0}
+          sub={`run-rate ${usd(s.rewardsDailyRunRateUsd)}/day of ${usd(s.rewardsDailyAvailableUsd)}`}
+        />
         <Big
           label="Markout 30m"
           value={s.markout30m == null ? 0 : s.markout30m * 100}
@@ -163,7 +173,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
             <div className="py-12 text-center text-[12px] text-muted">{filter === "quoting" ? "The risk engine is standing aside on every market right now." : "Nothing here."}</div>
           ) : (
             <div className="-mx-4 overflow-x-auto">
-              <table className="w-full min-w-[960px] text-[12px]">
+              <table className="w-full min-w-[1040px] text-[12px]">
                 <thead className="text-left text-[11px] uppercase tracking-[0.06em] text-muted">
                   <tr>
                     <th className="px-4 pb-2 font-normal">Market</th>
@@ -172,6 +182,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
                     <th className="pb-2 text-right font-normal">Our bid / ask</th>
                     <th className="pb-2 text-right font-normal">Fair ±σ¢</th>
                     <th className="pb-2 pl-3 font-normal">Risk engine</th>
+                    <th className="pb-2 text-right font-normal">Reward share</th>
                     <th className="pb-2 text-right font-normal">Pos</th>
                     <th className="px-4 pb-2 text-right font-normal">PnL</th>
                   </tr>

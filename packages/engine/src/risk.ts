@@ -1,6 +1,7 @@
 import type { Market } from "@longtail/core";
 import type { Forecast } from "./forecast.ts";
 import { infoRegime, type RuleAssessment } from "./rules.ts";
+import { atRiskUsd } from "./paper.ts";
 
 export interface RiskConfig {
   /** Max |YES shares × fair| per market, USD. */
@@ -98,7 +99,7 @@ export function decide(
   let allowBid = true;
   let allowAsk = true;
 
-  const posUsd = ex.position * f.fair;
+  const posUsd = atRiskUsd(ex.position, f.fair);
   if (posUsd >= cfg.maxMarketUsd) {
     allowBid = false;
     reasons.push("long limit: offer only");

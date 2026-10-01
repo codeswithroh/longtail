@@ -1,5 +1,5 @@
 "use client";
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const C = { grid: "#1d2527", axis: "#8a9ca1", accent: "#2cb0c8", primary: "#038093", gain: "#4cc38a", loss: "#f26d6d", warn: "#e8b54a", text: "#e5f5f9", surface: "#11191b" };
 const tick = { fill: C.axis, fontSize: 11, fontFamily: "var(--font-plex-mono)" };
@@ -104,6 +104,23 @@ export function PnlHistogram({ values }: { values: number[] }) {
           ))}
         </Bar>
       </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+/** Calibration curve: market price vs. how often YES actually happened (fitted on older markets). */
+export function CalibrationChart({ points }: { points: { p: number; y: number; n: number }[] }) {
+  const data = [{ p: 0, y: 0, n: 0 }, ...points, { p: 1, y: 1, n: 0 }].map((d) => ({ p: +(d.p * 100).toFixed(1), y: +(d.y * 100).toFixed(1), n: Math.round(d.n) }));
+  return (
+    <ResponsiveContainer width="100%" height={220}>
+      <LineChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: -8 }}>
+        <CartesianGrid stroke={C.grid} />
+        <XAxis dataKey="p" type="number" domain={[0, 100]} tick={tick} tickFormatter={(v) => `${v}¢`} stroke={C.grid} />
+        <YAxis domain={[0, 100]} tick={tick} tickFormatter={(v) => `${v}%`} stroke={C.grid} />
+        <Tooltip {...tooltip} formatter={(v) => [`${v}% resolved YES`, "observed"]} labelFormatter={(l) => `priced at ${l}¢`} />
+        <ReferenceLine segment={[{ x: 0, y: 0 }, { x: 100, y: 100 }]} stroke={C.axis} strokeDasharray="3 3" />
+        <Line dataKey="y" stroke={C.accent} strokeWidth={1.5} dot={{ r: 2.5, fill: C.accent }} isAnimationActive={false} />
+      </LineChart>
     </ResponsiveContainer>
   );
 }

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { ArmChart, PnlHistogram } from "@/components/charts";
+import { ArmChart, CalibrationChart, PnlHistogram } from "@/components/charts";
 import { Card, Empty, Freshness, PageHeader, Pill, Stat } from "@/components/ui";
 import { readData, type ArmSummary, type Backtest } from "@/lib/data";
 import { int, pct, tone, usd } from "@/lib/format";
@@ -23,6 +23,75 @@ function ArmCard({ label, blurb, s }: { label: string; blurb: string; s: ArmSumm
         <Stat label="Edge at fill" value={usd(s.edgeUsd, { signed: true })} tone={tone(s.edgeUsd)} sub="vs. own fair value at fill time" />
         <Stat label="Markets traded" value={`${int(s.marketsTraded)}/${int(s.markets)}`} sub={`${int(s.fills)} fills · ${usd(s.volumeUsd)} volume`} />
         <Stat label="Worst market" value={usd(s.worstMarketUsd, { signed: true })} tone={tone(s.worstMarketUsd)} sub={`${pct(s.winRate)} of traded markets profitable`} />
+      </div>
+    </div>
+  );
+}
+
+const WF_ARMS: { key: "naive" | "riskEngine" | "plusDriftGuard" | "plusCalibration"; label: string; blurb: string }[] = [
+  { key: "naive", label: "Naive", blurb: "fixed 2¢ half-spread, no limits" },
+  { key: "riskEngine", label: "Risk engine", blurb: "regime filter, toxicity, limits, reduce-only" },
+  { key: "plusDriftGuard", label: "+ drift guard", blurb: "no bids into slides, no offers into rises" },
+  { key: "plusCalibration", label: "+ calibration", blurb: "fair value mapped through the fitted curve" },
+];
+
+function WalkForward({ w }: { w: NonNullable<Backtest["walkForward"]> }) {
+  const be = w.rewards.breakevenShare;
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-5">
+        <Card
+          title="Out of sample: newer half only"
+          note={`fit on ${int(w.trainMarkets)} older markets · tested on ${int(w.testMarkets)} resolved after ${w.splitAt.slice(0, 10)}`}
+          className="lg:col-span-3"
+        >
+          <div className="-mx-4 overflow-x-auto">
+            <table className="w-full min-w-[620px] text-[12px]">
+              <thead className="text-left text-[11px] uppercase tracking-[0.06em] text-muted">
+                <tr>
+                  <th className="px-4 pb-2 font-normal">Arm</th>
+                  <th className="pb-2 text-right font-normal">Traded</th>
+                  <th className="pb-2 text-right font-normal">Edge at fill</th>
+                  <th className="pb-2 text-right font-normal">PnL settled</th>
+                  <th className="pb-2 text-right font-normal">On capital</th>
+                  <th className="pb-2 text-right font-normal">Worst mkt</th>
+                  <th className="px-4 pb-2 text-right font-normal">Break-even reward share</th>
+                </tr>
+              </thead>
+              <tbody>
+                {WF_ARMS.map((a) => {
+                  const s = w.arms[a.key];
+                  return (
+                    <tr key={a.key} className="border-t border-border align-top">
+                      <td className="px-4 py-2">
+                        <div>{a.label}</div>
+                        <div className="text-[11px] text-muted">{a.blurb}</div>
+                      </td>
+                      <td className="num py-2 text-right text-muted">{int(s.marketsTraded)}</td>
+                      <td className={`num py-2 text-right ${tone(s.edgeUsd)}`}>{usd(s.edgeUsd, { signed: true })}</td>
+                      <td className={`num py-2 text-right ${tone(s.pnlUsd)}`}>{usd(s.pnlUsd, { signed: true })}</td>
+                      <td className={`num py-2 text-right ${tone(s.returnOnPeakCapital)}`}>{pct(s.returnOnPeakCapital, 1)}</td>
+                      <td className={`num py-2 text-right ${tone(s.worstMarketUsd)}`}>{usd(s.worstMarketUsd, { signed: true })}</td>
+                      <td className="num px-4 py-2 text-right">{s.pnlUsd >= 0 ? <span className="text-gain">not needed</span> : pct(be[a.key], 1)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-3 text-[12px] leading-relaxed text-muted">
+            Break-even reward share: the fraction of available liquidity rewards a strategy must collect to cover its spread PnL, using today&rsquo;s reward
+            configs ({pct(w.rewards.rewardedShare)} of addressable long-tail markets pay, {usd(w.rewards.meanDailyUsd)}/day on average) and the market-days
+            each arm spent quoting.
+          </p>
+        </Card>
+        <Card title="Long-shot bias, measured" note="fitted on the older half" className="lg:col-span-2">
+          <CalibrationChart points={w.curve} />
+          <div className="mt-3 grid grid-cols-2 gap-4">
+            <Stat label="Brier, market price" value={w.brierMarket.toFixed(4)} sub="newer-half markets" />
+            <Stat label="Brier, calibrated" value={w.brierCalibrated.toFixed(4)} tone={w.brierCalibrated < w.brierMarket ? "text-gain" : "text-loss"} sub="lower is better" />
+          </div>
+        </Card>
       </div>
     </div>
   );
@@ -67,6 +136,9 @@ export default async function BacktestPage() {
         right={<Freshness at={d.generatedAt} label="backtest" />}
       />
 
+      {d.walkForward && <WalkForward w={d.walkForward} />}
+
+      <h2 className="pt-2 text-[12px] font-medium uppercase tracking-[0.06em] text-muted">Full sample, first-generation risk engine</h2>
       <div className="grid gap-4 lg:grid-cols-3">
         {ARMS.map((a) => (
           <ArmCard key={a.key} label={a.label} blurb={a.blurb} s={d.summary[a.key]} />

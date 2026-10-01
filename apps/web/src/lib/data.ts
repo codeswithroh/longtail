@@ -64,6 +64,7 @@ export interface ArmSummary {
   winRate: number;
   returnOnPeakCapital: number;
   worstMarketUsd: number;
+  marketDaysQuoted: number;
   byCategory: Record<string, { markets: number; pnlUsd: number; volumeUsd: number }>;
 }
 
@@ -72,6 +73,16 @@ export interface Backtest {
   universe: { count: number; live: number; weeks: number; minVolume: number; maxVolume: number };
   assumptions: string[];
   summary: Record<"guarded" | "guardedWithLive" | "naive", ArmSummary>;
+  walkForward?: {
+    trainMarkets: number;
+    testMarkets: number;
+    splitAt: string;
+    curve: { p: number; y: number; n: number }[];
+    brierMarket: number;
+    brierCalibrated: number;
+    arms: Record<"naive" | "riskEngine" | "plusDriftGuard" | "plusCalibration", ArmSummary>;
+    rewards: { rewardedShare: number | null; meanDailyUsd: number | null; breakevenShare: Record<string, number> };
+  };
   markets: {
     marketId: string;
     question: string;
@@ -105,6 +116,7 @@ export interface PaperMarket {
   quote: { bid: { price: number; size: number } | null; ask: { price: number; size: number } | null; spread: number | null } | null;
   improvesSpread: boolean | null;
   decision: { quote: boolean; reasons: string[] } | null;
+  rewards: { daily: number; maxSpread: number; share: number | null; accruedUsd: number } | null;
   position: { shares: number; pnl: number; fills: number; volumeUsd: number; edgeUsd: number } | null;
   rules: { score: number; reasons: string[] };
 }
@@ -123,6 +135,9 @@ export interface PaperState {
     volumeUsd: number;
     edgeUsd: number;
     pnlUsd: number;
+    rewardsUsd: number;
+    rewardsDailyAvailableUsd: number;
+    rewardsDailyRunRateUsd: number;
     grossExposureUsd: number;
     markout5m: number | null;
     markout30m: number | null;
