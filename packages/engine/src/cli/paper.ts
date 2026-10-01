@@ -117,7 +117,12 @@ async function step(s: MarketState, now: number) {
   // 3. Forecast, risk, quote.
   const raw = await forecastMarket(s.market, book, s.recent, s.history, now, external);
   // Calibrate only market-implied signals; an LLM forecast is already a probability judgement.
-  const f = CURVE && external.length === 0 ? { ...raw, fair: applyCalibration(CURVE, raw.fair) } : raw;
+  // The curve is a population prior; a tight live book is current evidence about this market, so it still bounds fair.
+  const bid = book.bids[0]?.price;
+  const ask = book.asks[0]?.price;
+  const tight = bid !== undefined && ask !== undefined && ask - bid <= 0.1;
+  const cal = CURVE && external.length === 0 ? applyCalibration(CURVE, raw.fair) : raw.fair;
+  const f = { ...raw, fair: tight ? Math.min(ask!, Math.max(bid!, cal)) : cal };
   s.forecast = f;
   const pos = pf.get(s.market.id, s.market.category);
   const exp = pf.exposureUsd(fairOf);
