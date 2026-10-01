@@ -2,6 +2,12 @@
   "name": "@longtail/engine",
   "version": "0.1.0",
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "dependencies": { "@longtail/core": "workspace:*" }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.129.0",
+    "@longtail/core": "workspace:*",
+    "zod": "^4.6.5"
+  }
 }

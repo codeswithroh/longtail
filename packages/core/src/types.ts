@@ -7,6 +7,8 @@ export interface Market {
   id: string;
   /** Groups outcomes that settle together (Polymarket conditionId, HIP-4 question id). */
   groupId: string;
+  /** Parent event (several binaries can belong to one multi-outcome event). */
+  eventId?: string;
   question: string;
   /** Plain-text resolution rules as published by the venue. */
   rules: string;

@@ -14,9 +14,21 @@ const now = Date.now();
 
 const windows = Array.from({ length: Number(weeks) }, (_, i) => ({ endFrom: now - (i + 1) * 7 * DAY, endTo: now - i * 7 * DAY }));
 const perWindow = await mapLimit(windows, 3, (w) =>
-  pm.listResolved(Number(perWeek) * 4, Number(minVol), Number(maxVol), w).catch(() => [] as ResolvedMarket[]),
+  pm.listResolved(Number(perWeek) * 4, Number(minVol), Number(maxVol), w).catch((e) => (console.log(`  window failed: ${String(e).slice(0, 80)}`), [] as ResolvedMarket[])),
 );
-const all = perWindow.flatMap((xs) => xs.filter((r) => r.startedAt !== null && r.resolvedAt - r.startedAt > 7 * DAY).slice(0, Number(perWeek)));
+// At most 2 outcomes per event, so one multi-outcome event can't dominate the sample.
+const perEvent = new Map<string, number>();
+const all = perWindow.flatMap((xs) =>
+  xs
+    .filter((r) => r.startedAt !== null && r.resolvedAt - r.startedAt > 7 * DAY)
+    .filter((r) => {
+      const k = r.market.eventId ?? r.market.groupId;
+      const n = perEvent.get(k) ?? 0;
+      perEvent.set(k, n + 1);
+      return n < 2;
+    })
+    .slice(0, Number(perWeek)),
+);
 const live = all.filter((r) => infoRegime(r.market) === "live").length;
 console.log(`sampled ${all.length} resolved markets over ${weeks} weeks ($${minVol}-$${maxVol} lifetime volume, >7 days listed); ${live} live-information`);
 
@@ -28,7 +40,8 @@ const inputs = (
       const [trades, history] = await Promise.all([pm.getTrades(r.market, 0, 3000), pm.getHistory(r.market, start, r.resolvedAt)]);
       if (++done % 50 === 0) console.log(`  fetched ${done}/${all.length}`);
       return trades.length ? { market: r.market, outcome: r.outcome, resolvedAt: r.resolvedAt, trades, history } : null;
-    } catch {
+    } catch (e) {
+      console.log(`  fetch failed: ${String(e).slice(0, 100)}`);
       return null;
     }
   })

@@ -61,6 +61,7 @@ export function toMarket(m: GammaMarket): Market | null {
     venue: "polymarket",
     id: yes,
     groupId: m.conditionId,
+    eventId: m.events?.[0]?.slug,
     question: m.question,
     rules: m.description ?? "",
     resolutionSource: m.resolutionSource ?? "",
@@ -87,13 +88,18 @@ export class Polymarket implements Venue {
   async listMarkets(onPage?: (count: number) => void): Promise<Market[]> {
     const nowIso = new Date().toISOString();
     const out: Market[] = [];
+    const seen = new Set<string>();
     // Offset paging stops at ~2,000 rows; the keyset endpoint walks the full set.
     for (let cursor: string | undefined; ; ) {
       const res = await getJson<{ markets: GammaMarket[]; next_cursor?: string | null }>(
         `${GAMMA}/markets/keyset?active=true&closed=false&enableOrderBook=true&include_tag=true&end_date_min=${nowIso}&limit=500` +
           (cursor ? `&after_cursor=${encodeURIComponent(cursor)}` : ""),
       );
+      let fresh = 0;
       for (const g of res.markets) {
+        if (seen.has(g.id)) continue;
+        seen.add(g.id);
+        fresh++;
         const m = toMarket(g);
         if (!m || !m.acceptingOrders) continue;
         const no = parse<string[]>(g.clobTokenIds, [])[1];
@@ -102,7 +108,8 @@ export class Polymarket implements Venue {
       }
       onPage?.(out.length);
       cursor = res.next_cursor ?? undefined;
-      if (!cursor || res.markets.length === 0) break;
+      // Stop if the cursor starts replaying pages we've already seen.
+      if (!cursor || res.markets.length === 0 || fresh === 0) break;
     }
     return out;
   }
@@ -145,11 +152,28 @@ export class Polymarket implements Venue {
     return trades.sort((a, b) => a.ts - b.ts);
   }
 
+  /**
+   * Hourly price history. The CLOB rejects long ranges at hourly fidelity, so fetch in
+   * 14-day chunks; resolved markets often only keep coarse history, so fall back to
+   * the full-life series at 12h fidelity.
+   */
   async getHistory(market: Market, startTs: number, endTs: number): Promise<PricePoint[]> {
-    const raw = await getJson<{ history: { t: number; p: number }[] }>(
-      `${CLOB}/prices-history?market=${market.id}&startTs=${Math.floor(startTs / 1000)}&endTs=${Math.floor(endTs / 1000)}&fidelity=60`,
-    );
-    return raw.history.map((h) => ({ ts: h.t * 1000, price: h.p }));
+    const CHUNK = 14 * 86_400_000;
+    const points: PricePoint[] = [];
+    for (let from = Math.max(startTs, endTs - 180 * 86_400_000); from < endTs; from += CHUNK) {
+      const to = Math.min(endTs, from + CHUNK);
+      const raw = await getJson<{ history?: { t: number; p: number }[] }>(
+        `${CLOB}/prices-history?market=${market.id}&startTs=${Math.floor(from / 1000)}&endTs=${Math.floor(to / 1000)}&fidelity=60`,
+      ).catch(() => ({ history: [] }));
+      for (const h of raw.history ?? []) points.push({ ts: h.t * 1000, price: h.p });
+    }
+    if (points.length === 0) {
+      const raw = await getJson<{ history?: { t: number; p: number }[] }>(`${CLOB}/prices-history?market=${market.id}&interval=max&fidelity=720`).catch(
+        () => ({ history: [] }),
+      );
+      for (const h of raw.history ?? []) if (h.t * 1000 >= startTs && h.t * 1000 <= endTs) points.push({ ts: h.t * 1000, price: h.p });
+    }
+    return points.sort((x, y) => x.ts - y.ts);
   }
 
   /**
@@ -166,7 +190,8 @@ export class Polymarket implements Venue {
     const range = window ? `&end_date_min=${new Date(window.endFrom).toISOString()}&end_date_max=${new Date(window.endTo).toISOString()}` : "";
     for (let offset = 0; out.length < limit && offset < 2000; offset += PAGE) {
       const page = await getJson<(GammaMarket & { volumeNum?: number; startDate?: string })[]>(
-        `${GAMMA}/markets?closed=true&include_tag=true&order=closedTime&ascending=false&volume_num_min=${minVolume}&volume_num_max=${maxVolume}${range}&limit=${PAGE}&offset=${offset}`,
+        // Gamma 500s when sorting by close time inside a date window, so windowed queries go unsorted.
+        `${GAMMA}/markets?closed=true&include_tag=true${window ? "" : "&order=closedTime&ascending=false"}&volume_num_min=${minVolume}&volume_num_max=${maxVolume}${range}&limit=${PAGE}&offset=${offset}`,
       );
       if (page.length === 0) break;
       for (const g of page) {

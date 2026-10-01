@@ -29,7 +29,8 @@ const INSIDER = [
   /\b(sign|hire|fire|appoint|nominate|resign)s?\b/i,
   /\b(release|launch) date\b/i,
   /\b(trailer|album|song|episode)\b/i,
-  /\bwin(s)? (the )?(award|oscar|grammy|emmy|nobel)\b/i,
+  /\bwins? (the )?([\w'\- ]+ )?(award|oscar|grammy|emmy|nobel|medal|prize|ballon d'or|mvp|trophy)\b/i,
+  /\b(named|selected|chosen) (as )?(the )?([\w ]+ )?(person of the year|ceo|coach|host|pick)\b/i,
   /\b(acquire|merger|lawsuit|settle)s?\b/i,
 ];
 
