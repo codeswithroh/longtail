@@ -4,6 +4,8 @@
 
 **Live dashboard: [longtail-rosy.vercel.app](https://longtail-rosy.vercel.app)** · The engine runs every 5 minutes on GitHub Actions ([live-engine](.github/workflows/live-engine.yml)), and its state is published to the [`live-state`](https://github.com/codeswithroh/longtail/tree/live-state) branch.
 
+**Vault on HyperEVM testnet (chain 998):** `LongtailVault` [`0x1c4DA07db8A2b1D23dBecDE9aAD3707dfc733AfC`](contracts/broadcast/Deploy.s.sol/998/run-latest.json) · test asset tUSDC `0x619E00476F63af724e478aDa07c07530795943be` · keeper `0x66B3A4B691699d0fbA15CefF3B7f11c71f3C9667`. Every hour the keeper posts `reportNav`, pinned to the hash of the published paper state.
+
 Creating a prediction market is now nearly free. Making it tradeable is not. Longtail is a liquidity network that prices and quotes the thousands of thin markets nobody makes, with a risk engine built to survive the adverse selection that makes long-tail market making lose money.
 
 ## The problem (measured, not asserted)
@@ -64,20 +66,18 @@ Claude Opus 5.5 was tested on 136 slow-information markets that resolved **after
 
 **Run 1 (Oct 1–3, 45h, 159 markets):** 30 fills, −$142 mark-to-fair. Three markets caused −$151: a Big Brother contestant, "Will Trump say *Ice Cream*", and Codex usage-limit resets. Reality TV, mention markets and company-decided outcomes are now excluded by rule, and the agent refuses what the rules miss.
 
-**Run 2 (from Oct 3, ongoing):
-
-** the engine quotes ~150 reward-paying long-tail markets (Polymarket plus HIP-4) every 5 minutes, with the Claude agent triaging each market. Fills are simulated only when a real taker print would have hit our price, and positions settle when markets resolve. Reward income is estimated with Polymarket's published scoring formula. The rest of the book is treated as one competitor, which overstates competition. **The run-rate shown on the dashboard is a model estimate until validated with real orders.**
+**Run 2 (from Oct 3, ongoing):** the engine quotes ~150 reward-paying long-tail markets (Polymarket plus HIP-4) every 5 minutes, with the Claude agent triaging each market. Fills are simulated only when a real taker print would have hit our price, and positions settle when markets resolve. Reward income is estimated with Polymarket's published scoring formula. The rest of the book is treated as one competitor, which overstates competition. **The run-rate shown on the dashboard is a model estimate until validated with real orders.**
 
 ### Hyperliquid execution
 
-`packages/engine/src/live/hip4-executor.ts` turns quotes into HIP-4 orders. A bid is a buy of YES; an offer is a buy of NO at 1 − price. The merged book makes that equivalent to a two-sided quote that needs no inventory and can't be liquidated. `hip4-testnet.ts` runs the full engine with real orders on HIP-4 testnet, and `contracts/script/Deploy.s.sol` deploys the vault to HyperEVM testnet.
+`packages/engine/src/live/hip4-executor.ts` turns quotes into HIP-4 orders. A bid is a buy of YES; an offer is a buy of NO at 1 − price. The merged book makes that equivalent to a two-sided quote that needs no inventory and can't be liquidated. `hip4-testnet.ts` runs the full engine against HIP-4 testnet books every cycle. It signs and sends real orders once the keeper holds testnet USDC; until then it runs dry. `contracts/script/Deploy.s.sol` deployed the vault above, and `report-nav.ts` mirrors the paper portfolio's return into it: principal × (1 + net PnL / $5k risk budget), with each step held under the contract's ±5% bound.
 
 ## Repo
 
 ```
 packages/core     venue adapters: Polymarket (Gamma, CLOB, Data API, rewards), Hyperliquid HIP-4; DoH resolution
 packages/engine   forecast, calibration, rules/regime, toxicity, risk, quoter, rewards, paper exchange, replay
-  src/cli         census · backtest · universe · paper · cycle · eval-llm · hip4-testnet · rewards
+  src/cli         census · backtest · universe · paper · cycle · eval-llm · hip4-testnet · report-nav · rewards
   src/live        resumable live engine, HIP-4 executor
   src/llm.ts      Claude forecasting agent (web search + structured output)
 contracts         LongtailVault.sol (ERC-4626) + Foundry tests
@@ -105,7 +105,7 @@ Set `ANTHROPIC_API_KEY` to switch on the forecasting agent (`LONGTAIL_LLM_MODEL`
 - **Paper only.** No live orders yet. Simulated fills don't capture queue priority or our own market impact.
 - **Rewards are estimated**, not earned. The backtest excludes rewards entirely because historical reward configs aren't published.
 - **The agent's evaluation is small** (136 markets).
-- **The vault is tested but not audited or deployed.**
+- **The vault is tested and deployed on testnet only, and isn't audited.** Its NAV mirrors the paper run, not real venue positions.
 - **Kalshi is read-only** (census). Trading needs a US-regulated account.
 - **The regime and insider rules are heuristics.** They're conservative by design, so they exclude many sports-season markets that might be quotable.
 
