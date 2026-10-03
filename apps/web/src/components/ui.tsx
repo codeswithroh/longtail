@@ -27,14 +27,15 @@ export function PageHeader({ title, lede, right }: { title: string; lede: ReactN
 
 export function Card({ title, note, children, className }: { title?: string; note?: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={clsx("rounded-md border border-border bg-surface", className)}>
+    <section className={clsx("min-w-0 rounded-md border border-border bg-surface", className)}>
       {title && (
-        <div className="flex items-baseline justify-between gap-3 border-b border-border px-4 py-2.5">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 border-b border-border px-4 py-2.5">
           <h2 className="text-[12px] font-medium uppercase tracking-[0.06em] text-muted">{title}</h2>
           {note && <div className="text-[11px] text-muted">{note}</div>}
         </div>
       )}
-      <div className="p-4">{children}</div>
+      {/* Wide tables scroll inside the card instead of widening the page on phones. */}
+      <div className="overflow-x-auto p-4">{children}</div>
     </section>
   );
 }

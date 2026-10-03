@@ -115,7 +115,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
       } catch {
         setError(true);
       }
-    }, 10_000);
+    }, 60_000);
     return () => clearInterval(id);
   }, []);
 
@@ -124,7 +124,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
     const xs = state.markets.filter((m) => (filter === "all" ? true : filter === "quoting" ? m.decision?.quote : !m.decision?.quote));
     return xs.sort((a, b) => Number(b.improvesSpread) - Number(a.improvesSpread) || (b.position?.fills ?? 0) - (a.position?.fills ?? 0));
   }, [state, filter]);
-  const stale = Date.now() - s.updatedAt > 5 * 60_000;
+  const stale = Date.now() - s.updatedAt > 12 * 60_000; // engine cycles every 5 min; publishing adds a few
   const reasons = Object.entries(s.pullReasons).sort((a, b) => b[1] - a[1]);
 
   return (
