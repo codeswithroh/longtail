@@ -8,12 +8,14 @@ const DATA_URL = process.env.LONGTAIL_DATA_URL;
 // Research artifacts (census, backtest, agent eval) are versioned on main under snapshot/.
 const SNAPSHOT_URL = process.env.LONGTAIL_SNAPSHOT_URL;
 const SNAPSHOT_FILES = new Set(["census.json", "backtest.json", "llm-eval.json", "calibration.json"]);
+// A slow upstream must degrade one panel, not hang the whole page.
+const FETCH_TIMEOUT_MS = 6_000;
 
 export async function readData<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
   const base = SNAPSHOT_URL && SNAPSHOT_FILES.has(file) ? SNAPSHOT_URL : DATA_URL;
   if (base) {
     try {
-      const res = await fetch(`${base}/${file}`, { cache: "no-store" });
+      const res = await fetch(`${base}/${file}`, { cache: "no-store", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
       if (!res.ok) return null;
       return { data: (await res.json()) as T, updatedAt: new Date(res.headers.get("last-modified") ?? Date.now()) };
     } catch {
@@ -194,7 +196,7 @@ export async function readTimeline(max = 300): Promise<TimelineRow[]> {
   let text = "";
   try {
     if (url) {
-      const res = await fetch(`${url}/timeline.jsonl`, { cache: "no-store" });
+      const res = await fetch(`${url}/timeline.jsonl`, { cache: "no-store", signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
       text = res.ok ? await res.text() : "";
     } else {
       const p = path.join(DATA_DIR, "timeline.jsonl");

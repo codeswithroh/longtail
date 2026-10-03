@@ -36,6 +36,7 @@ async function call(data: string): Promise<string> {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: VAULT.vault, data }, "latest"] }),
     cache: "no-store",
+    signal: AbortSignal.timeout(5_000), // a slow testnet RPC shouldn't hold the page
   });
   const j = (await res.json()) as { result?: string; error?: unknown };
   if (!j.result) throw new Error("eth_call failed");
