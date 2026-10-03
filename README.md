@@ -2,6 +2,8 @@
 
 **AI-agent liquidity for the long tail of prediction markets.**
 
+**Live dashboard: [longtail-rosy.vercel.app](https://longtail-rosy.vercel.app)** · The engine runs every 5 minutes on GitHub Actions ([live-engine](.github/workflows/live-engine.yml)), and its state is published to the [`live-state`](https://github.com/codeswithroh/longtail/tree/live-state) branch.
+
 Creating a prediction market is now nearly free. Making it tradeable is not. Longtail is a liquidity network that prices and quotes the thousands of thin markets nobody makes, with a risk engine built to survive the adverse selection that makes long-tail market making lose money.
 
 ## The problem (measured, not asserted)
@@ -18,7 +20,7 @@ From a full census of Polymarket on Oct 1, 2026 (`pnpm census`):
 | Liquidity rewards Polymarket pays makers | **$183.6k/day** across 17,989 markets |
 | …of which on the addressable long tail | **$50.2k/day** across 6,924 markets (~$18M/yr) |
 
-Hyperliquid's HIP-4 outcome markets show the same gap: 230 two-sided books with a 4.5¢ median spread and a 24¢ 75th percentile.
+It isn't a Polymarket quirk. **Kalshi** (CFTC-regulated, combos excluded) lists 131,920 open markets: 82% of 24h volume is in the top 1%, and 83% traded nothing. **Hyperliquid HIP-4** lists 236 outcome books with a 45¢ 75th-percentile spread.
 
 ## What Longtail does
 
@@ -45,16 +47,38 @@ Calibration also improves forecasts out of sample (Brier score 0.0706 → 0.0670
 
 **Reading it honestly:** naive long-tail market making loses about 39% of capital to adverse selection. Longtail's engine brings spread PnL to roughly break-even out of sample. Venue liquidity rewards, not modelled in the replay, are the margin: without calibration the engine needs about 4% of available rewards to break even, and with it, none.
 
-### Live paper trading (`pnpm paper 150 60`)
+### The AI agent, out of sample (`node packages/engine/src/cli/eval-llm.ts`)
 
-The engine quotes ~150 addressable long-tail markets (Polymarket plus HIP-4) against live order books every minute. Fills are simulated only when a real taker print would have hit our price; no orders are sent. Reward income is estimated with Polymarket's published scoring formula. The rest of the book is treated as one competitor, which overstates competition. **The run-rate shown on the dashboard is a model estimate until validated with real orders.**
+Claude Opus 5.5 was tested on 136 slow-information markets that resolved **after its training cutoff**. It forecast 7 days before resolution, with web search off so it couldn't see outcomes.
+
+| Forecast | Brier (lower is better) |
+|---|---|
+| Market price | 0.0598 |
+| Calibrated price | 0.0570 |
+| Claude alone | 0.0582 |
+| **Claude + calibrated price** | **0.0565** |
+
+**Triage matters more than forecasting.** Markets the agent refused (insider risk > 0.3 or resolution clarity < 0.6) lost **−$237** in replay; the ones it kept made **+$254**. It's a small sample, so treat it as early evidence.
+
+### Live paper trading
+
+**Run 1 (Oct 1–3, 45h, 159 markets):** 30 fills, −$142 mark-to-fair. Three markets caused −$151: a Big Brother contestant, "Will Trump say *Ice Cream*", and Codex usage-limit resets. Reality TV, mention markets and company-decided outcomes are now excluded by rule, and the agent refuses what the rules miss.
+
+**Run 2 (from Oct 3, ongoing):
+
+** the engine quotes ~150 reward-paying long-tail markets (Polymarket plus HIP-4) every 5 minutes, with the Claude agent triaging each market. Fills are simulated only when a real taker print would have hit our price, and positions settle when markets resolve. Reward income is estimated with Polymarket's published scoring formula. The rest of the book is treated as one competitor, which overstates competition. **The run-rate shown on the dashboard is a model estimate until validated with real orders.**
+
+### Hyperliquid execution
+
+`packages/engine/src/live/hip4-executor.ts` turns quotes into HIP-4 orders. A bid is a buy of YES; an offer is a buy of NO at 1 − price. The merged book makes that equivalent to a two-sided quote that needs no inventory and can't be liquidated. `hip4-testnet.ts` runs the full engine with real orders on HIP-4 testnet, and `contracts/script/Deploy.s.sol` deploys the vault to HyperEVM testnet.
 
 ## Repo
 
 ```
 packages/core     venue adapters: Polymarket (Gamma, CLOB, Data API, rewards), Hyperliquid HIP-4; DoH resolution
 packages/engine   forecast, calibration, rules/regime, toxicity, risk, quoter, rewards, paper exchange, replay
-  src/cli         census · backtest · paper · rewards
+  src/cli         census · backtest · universe · paper · cycle · eval-llm · hip4-testnet · rewards
+  src/live        resumable live engine, HIP-4 executor
   src/llm.ts      Claude forecasting agent (web search + structured output)
 contracts         LongtailVault.sol (ERC-4626) + Foundry tests
 apps/web          dashboard: Problem · Backtest · Live · Vault (Next.js)
@@ -67,9 +91,10 @@ pnpm install
 pnpm rewards                       # snapshot reward configs
 pnpm census                        # full market census (~20 min, caches data/pm-markets.json)
 pnpm backtest 26 40                # fetch + replay; add --cached to re-run instantly
-pnpm paper 150 60                  # live paper quoting
+pnpm universe                      # pick the reward-paying long tail (~3 min)
+pnpm paper 60                      # live paper quoting (resumable; ANTHROPIC_API_KEY enables the agent)
 pnpm --filter web dev              # dashboard on :3000
-pnpm test                          # engine tests (26)
+pnpm test                          # engine tests (27)
 cd contracts && forge test         # vault tests (9)
 ```
 
@@ -79,9 +104,9 @@ Set `ANTHROPIC_API_KEY` to switch on the forecasting agent (`LONGTAIL_LLM_MODEL`
 
 - **Paper only.** No live orders yet. Simulated fills don't capture queue priority or our own market impact.
 - **Rewards are estimated**, not earned. The backtest excludes rewards entirely because historical reward configs aren't published.
-- **The forecasting agent is untested here.** It needs an API key, and its calibration hasn't been measured.
+- **The agent's evaluation is small** (136 markets).
 - **The vault is tested but not audited or deployed.**
-- **Kalshi is not integrated.** Polymarket and HIP-4 only.
+- **Kalshi is read-only** (census). Trading needs a US-regulated account.
 - **The regime and insider rules are heuristics.** They're conservative by design, so they exclude many sports-season markets that might be quotable.
 
 All code in this repo was written during the Crypto World's Fair hackathon (Oct 2026).
