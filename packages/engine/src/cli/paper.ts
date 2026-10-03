@@ -16,6 +16,7 @@ process.on("SIGTERM", () => (stopping = true));
 while (!stopping) {
   const t0 = Date.now();
   const s = await engine.cycle();
+  engine.appendTimeline(s);
   engine.save();
   console.log(
     `[${new Date().toISOString().slice(11, 19)}] cycle ${s.cycles}: quoting ${s.quoting}/${s.markets} (+${s.settledMarkets} settled), fills ${s.fills}, ` +

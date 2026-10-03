@@ -80,7 +80,7 @@ export class LiveEngine {
     this.venues = { polymarket: this.pm, hip4: this.hip4 };
     this.rewards = this.readJson(`pm-rewards.json`) ?? {};
     this.curve = this.readJson<CalibrationCurve>(`calibration.json`);
-    this.llm = opts.llm && LlmForecaster.available() ? new LlmForecaster({ effort: "low", maxSearches: 3, ttlMs: 24 * 3600_000, cacheFile: `${this.dir}/llm-cache.json` }) : null;
+    this.llm = opts.llm && LlmForecaster.available() ? new LlmForecaster({ effort: "low", maxSearches: 3, ttlMs: 48 * 3600_000, cacheFile: `${this.dir}/llm-cache.json` }) : null;
     this.llmPerCycle = opts.llmPerCycle ?? 8;
     const llm = this.llm;
     this.external = llm
@@ -118,6 +118,12 @@ export class LiveEngine {
     this.tox = ToxicityTracker.fromJSON(s.toxicity);
     this.markouts = s.markouts ?? [];
     return true;
+  }
+
+  /** One line per cycle, so the dashboard can chart the run over time. */
+  appendTimeline(s: ReturnType<LiveEngine["snapshot"]>) {
+    const row = { t: s.updatedAt, quoting: s.quoting, markets: s.markets, fills: s.fills, pnlUsd: +s.pnlUsd.toFixed(2), rewardsUsd: +s.rewardsUsd.toFixed(2), runRate: +s.rewardsDailyRunRateUsd.toFixed(1), gross: +s.grossExposureUsd.toFixed(0) };
+    appendFileSync(`${this.dir}/timeline.jsonl`, JSON.stringify(row) + "\n");
   }
 
   save() {

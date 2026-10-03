@@ -1,10 +1,21 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-// The engine writes JSON to <repo>/data; the web app reads it at request time.
+// Dev: the engine writes JSON to <repo>/data. Production: the scheduled engine publishes the
+// same files to the repo's live-state branch, and LONGTAIL_DATA_URL points at its raw URL.
 const DATA_DIR = process.env.LONGTAIL_DATA_DIR ?? path.resolve(process.cwd(), "../../data");
+const DATA_URL = process.env.LONGTAIL_DATA_URL;
 
-export function readData<T>(file: string): { data: T; updatedAt: Date } | null {
+export async function readData<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
+  if (DATA_URL) {
+    try {
+      const res = await fetch(`${DATA_URL}/${file}`, { cache: "no-store" });
+      if (!res.ok) return null;
+      return { data: (await res.json()) as T, updatedAt: new Date(res.headers.get("last-modified") ?? Date.now()) };
+    } catch {
+      return null;
+    }
+  }
   const p = path.join(DATA_DIR, file);
   if (!existsSync(p)) return null;
   try {

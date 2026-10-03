@@ -8,5 +8,6 @@ const engine = new LiveEngine({ llm: process.argv.includes("--llm"), llmPerCycle
 engine.load();
 if (existsSync("data/universe.json")) engine.setUniverse(JSON.parse(readFileSync("data/universe.json", "utf8")) as Market[]);
 const s = await engine.cycle();
+engine.appendTimeline(s);
 engine.save();
 console.log(JSON.stringify({ cycle: s.cycles, quoting: s.quoting, markets: s.markets, fills: s.fills, pnlUsd: s.pnlUsd, rewardsUsd: s.rewardsUsd, llm: s.llm }));

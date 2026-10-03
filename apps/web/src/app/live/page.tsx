@@ -5,7 +5,7 @@ import { readData, type PaperState } from "@/lib/data";
 
 export default async function LivePage() {
   await connection();
-  const s = readData<PaperState>("paper-state.json");
+  const s = await readData<PaperState>("paper-state.json");
   return (
     <div className="space-y-6">
       <PageHeader

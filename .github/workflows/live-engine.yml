@@ -1,0 +1,54 @@
+# Runs one paper-trading cycle every 5 minutes and publishes the engine's state to the
+# live-state branch, which the hosted dashboard reads. No orders are ever sent.
+name: live-engine
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: live-engine
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          ref: live-state
+          path: data
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter "@longtail/engine..."
+
+      - name: Refresh the market universe once a day
+        run: |
+          last=$(cat data/universe.at 2>/dev/null || echo 0)
+          if [ $(( $(date +%s) - last )) -gt 86400 ]; then
+            node packages/engine/src/cli/universe.ts 150 20 && date +%s > data/universe.at
+          fi
+
+      - name: One engine cycle
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node packages/engine/src/cli/cycle.ts ${{ secrets.ANTHROPIC_API_KEY != '' && '--llm' || '' }}
+
+      - name: Publish state
+        working-directory: data
+        run: |
+          git config user.name "longtail-engine"
+          git config user.email "engine@users.noreply.github.com"
+          git checkout --orphan next
+          git add -A
+          git commit -qm "engine state $(date -u +%FT%TZ)"
+          git push -qf origin next:live-state

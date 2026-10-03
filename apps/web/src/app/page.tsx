@@ -6,7 +6,7 @@ import { cents, int, pct, usd } from "@/lib/format";
 
 export default async function ProblemPage() {
   await connection();
-  const c = readData<Census>("census.json");
+  const c = await readData<Census>("census.json");
   if (!c) {
     return (
       <>

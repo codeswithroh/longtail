@@ -158,7 +158,7 @@ function AgentEval({ e }: { e: LlmEval }) {
 
 export default async function BacktestPage() {
   await connection();
-  const b = readData<Backtest>("backtest.json");
+  const b = await readData<Backtest>("backtest.json");
   if (!b || !b.data.summary) {
     return (
       <>
@@ -170,7 +170,7 @@ export default async function BacktestPage() {
     );
   }
   const d = b.data;
-  const ai = readData<LlmEval>("llm-eval.json")?.data ?? null;
+  const ai = (await readData<LlmEval>("llm-eval.json"))?.data ?? null;
   const traded = d.markets.filter((m) => m.fills > 0);
   const reasons = new Map<string, number>();
   for (const m of d.markets) for (const [k, v] of Object.entries(m.pulledReasons)) reasons.set(k, (reasons.get(k) ?? 0) + v);
