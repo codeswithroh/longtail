@@ -14,6 +14,8 @@ export interface Hip4ExecutorOptions {
   testnet: boolean;
   /** Hard cap on USDC committed per side of one market. */
   maxSideUsd: number;
+  /** Venue minimum order notional (Hyperliquid rejects orders under $10). */
+  minOrderUsd?: number;
   /** Never send anything; log what would be sent. */
   dryRun: boolean;
 }
@@ -49,11 +51,11 @@ export class Hip4Executor {
     this.exchange = new ExchangeClient({ transport, wallet });
   }
 
-  /** Spot-side USDC available for outcome orders. */
-  async usdcBalance(): Promise<number> {
+  /** Spot-side USDC for outcome orders; `includeHeld` counts USDC locked in our resting orders. */
+  async usdcBalance(includeHeld = false): Promise<number> {
     const s = await this.info.spotClearinghouseState({ user: this.address });
     const usdc = s.balances.find((b) => b.coin === "USDC");
-    return usdc ? Number(usdc.total) - Number(usdc.hold) : 0;
+    return usdc ? Number(usdc.total) - (includeHeld ? 0 : Number(usdc.hold)) : 0;
   }
 
   async openOrders() {
@@ -76,7 +78,13 @@ export class Hip4Executor {
   ordersFor(marketId: string, q: Quote): PlacedOrder[] {
     const yes = Number(marketId);
     const out: PlacedOrder[] = [];
-    const cap = (px: number, size: number) => Math.max(0, Math.min(size, Math.floor(this.opts.maxSideUsd / px)));
+    const min = this.opts.minOrderUsd ?? 0;
+    const cap = (px: number, size: number) => {
+      const s = Math.min(size, Math.floor(this.opts.maxSideUsd / px));
+      // Lift small quotes to the venue minimum when the per-side cap allows it; otherwise skip.
+      const floor = Math.ceil(min / px);
+      return floor * px <= this.opts.maxSideUsd ? Math.max(s, floor) : 0;
+    };
     if (q.bid) {
       const size = cap(q.bid.price, q.bid.size);
       if (size > 0) out.push({ marketId, side: "bidYes", asset: OUTCOME_ASSET_BASE + yes, price: q.bid.price, size, status: "pending" });

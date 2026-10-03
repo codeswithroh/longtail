@@ -15,11 +15,15 @@ const pk = process.env.KEEPER_PRIVATE_KEY as `0x${string}` | undefined;
 if (!pk) throw new Error("KEEPER_PRIVATE_KEY is not set");
 
 const venue = new Hip4(HL_TESTNET_INFO);
-const exec0 = new Hip4Executor({ privateKey: pk, testnet: true, maxSideUsd: 25, dryRun: true });
-const balance = await exec0.usdcBalance().catch(() => 0);
-const dryRun = args.includes("--dry-run") || balance < 20;
-const exec = new Hip4Executor({ privateKey: pk, testnet: true, maxSideUsd: 25, dryRun });
-console.log(`keeper ${exec.address} · testnet spot USDC ${balance.toFixed(2)} · ${dryRun ? "DRY RUN (no orders sent)" : "placing testnet orders"}`);
+// Size to the account: each quoted market commits up to two orders of SIDE_USD (Hyperliquid's
+// minimum notional is $10). USDC held in our own resting orders counts, since each cycle cancels first.
+const SIDE_USD = 11;
+const exec0 = new Hip4Executor({ privateKey: pk, testnet: true, maxSideUsd: SIDE_USD, dryRun: true });
+const balance = await exec0.usdcBalance(true).catch(() => 0);
+const dryRun = args.includes("--dry-run") || balance < 2 * SIDE_USD;
+const maxMarkets = dryRun ? Number(nArg) : Math.min(Number(nArg), Math.floor((balance * 0.95) / (2 * SIDE_USD)));
+const exec = new Hip4Executor({ privateKey: pk, testnet: true, maxSideUsd: SIDE_USD, minOrderUsd: 10, dryRun });
+console.log(`keeper ${exec.address} · testnet spot USDC ${balance.toFixed(2)} · ${dryRun ? "DRY RUN (no orders sent)" : `placing testnet orders on up to ${maxMarkets} markets`}`);
 
 // Testnet books are thin and mostly price binaries; pick live ones with a book on at least one side.
 const all = await venue.listMarkets();
@@ -43,6 +47,7 @@ for (;;) {
   const cancelled = await exec.cancelAll().catch(() => 0);
   const placed: PlacedOrder[] = [];
   for (const m of universe) {
+    if (new Set(placed.filter((p) => p.status === "resting" || p.status === "dry-run").map((p) => p.marketId)).size >= maxMarkets) break;
     const [book, trades] = await Promise.all([venue.getBook(m), venue.getTrades(m)]);
     const f = await forecastMarket(m, book, trades, [], now);
     // Testnet demo: the regime filter is off because testnet only lists price binaries.
@@ -55,7 +60,7 @@ for (;;) {
   cycles++;
   log.push({ t: now, placed, cancelled });
   const fills = dryRun ? [] : await exec.fills(startedAt).catch(() => []);
-  const bal = dryRun ? balance : await exec.usdcBalance().catch(() => balance);
+  const bal = dryRun ? balance : await exec.usdcBalance(true).catch(() => balance);
   writeFileSync(
     "data/hip4-testnet.json",
     JSON.stringify({ address: exec.address, network: "hyperliquid-testnet", dryRun, startedAt, updatedAt: Date.now(), cycles, usdc: bal, markets: universe.map((m) => ({ id: m.id, question: m.question })), lastOrders: placed, fills, recent: log.slice(-20) }, null, 2),
