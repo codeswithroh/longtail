@@ -2,9 +2,7 @@ packages:
   - packages/*
   - apps/*
 allowBuilds:
-  esbuild: set this to true or false
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
-  - "@tailwindcss/oxide"
-  - unrs-resolver
+  esbuild: true
+  sharp: true
+  "@tailwindcss/oxide": true
+  unrs-resolver: true
