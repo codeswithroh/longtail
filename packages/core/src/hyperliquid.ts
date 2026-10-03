@@ -77,14 +77,22 @@ function describe(o: Outcome, q: Question | undefined): { question: string; cate
 
 const coinOf = (m: Market) => `#${m.id}`;
 
+export const HL_MAINNET_INFO = "https://api.hyperliquid.xyz/info";
+export const HL_TESTNET_INFO = "https://api.hyperliquid-testnet.xyz/info";
+
 export class Hip4 implements Venue {
   readonly id = "hip4" as const;
+  private url: string;
+
+  constructor(url: string = INFO) {
+    this.url = url;
+  }
 
   async listMarkets(): Promise<Market[]> {
-    const meta = await postJson<{ outcomes: Outcome[]; questions: Question[] }>(INFO, { type: "outcomeMeta" });
+    const meta = await postJson<{ outcomes: Outcome[]; questions: Question[] }>(this.url, { type: "outcomeMeta" });
     const qOf = new Map<number, Question>();
     for (const q of meta.questions) for (const o of [...q.namedOutcomes, q.fallbackOutcome]) qOf.set(o, q);
-    const mids = await postJson<Record<string, string>>(INFO, { type: "allMids" });
+    const mids = await postJson<Record<string, string>>(this.url, { type: "allMids" });
     const now = Date.now();
     const out: Market[] = [];
     for (const o of meta.outcomes) {
@@ -117,7 +125,7 @@ export class Hip4 implements Venue {
   }
 
   async getBook(market: Market): Promise<Book> {
-    const raw = await postJson<{ time: number; levels: [{ px: string; sz: string }[], { px: string; sz: string }[]] }>(INFO, {
+    const raw = await postJson<{ time: number; levels: [{ px: string; sz: string }[], { px: string; sz: string }[]] }>(this.url, {
       type: "l2Book",
       coin: coinOf(market),
     });
@@ -126,7 +134,7 @@ export class Hip4 implements Venue {
   }
 
   async getTrades(market: Market, sinceTs = 0): Promise<Trade[]> {
-    const raw = await postJson<{ side: "B" | "A"; px: string; sz: string; time: number }[]>(INFO, { type: "recentTrades", coin: coinOf(market) });
+    const raw = await postJson<{ side: "B" | "A"; px: string; sz: string; time: number }[]>(this.url, { type: "recentTrades", coin: coinOf(market) });
     return raw
       .filter((t) => t.time > sinceTs)
       .map((t) => ({ marketId: market.id, ts: t.time, price: Number(t.px), size: Number(t.sz), side: t.side === "B" ? ("buy" as const) : ("sell" as const) }))
@@ -135,12 +143,12 @@ export class Hip4 implements Venue {
 
   /** settleFraction once the outcome has settled, otherwise null. */
   async getResolution(market: Market): Promise<number | null> {
-    const r = await postJson<{ settleFraction?: string } | null>(INFO, { type: "settledOutcome", outcome: Math.floor(Number(market.id) / 10) }).catch(() => null);
+    const r = await postJson<{ settleFraction?: string } | null>(this.url, { type: "settledOutcome", outcome: Math.floor(Number(market.id) / 10) }).catch(() => null);
     return r?.settleFraction !== undefined ? Number(r.settleFraction) : null;
   }
 
   async getHistory(market: Market, startTs: number, endTs: number): Promise<PricePoint[]> {
-    const raw = await postJson<{ t: number; c: string; n: number }[]>(INFO, {
+    const raw = await postJson<{ t: number; c: string; n: number }[]>(this.url, {
       type: "candleSnapshot",
       req: { coin: coinOf(market), interval: "1h", startTime: startTs, endTime: endTs },
     });
