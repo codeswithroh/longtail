@@ -5,11 +5,15 @@ import path from "node:path";
 // same files to the repo's live-state branch, and LONGTAIL_DATA_URL points at its raw URL.
 const DATA_DIR = process.env.LONGTAIL_DATA_DIR ?? path.resolve(process.cwd(), "../../data");
 const DATA_URL = process.env.LONGTAIL_DATA_URL;
+// Research artifacts (census, backtest, agent eval) are versioned on main under snapshot/.
+const SNAPSHOT_URL = process.env.LONGTAIL_SNAPSHOT_URL;
+const SNAPSHOT_FILES = new Set(["census.json", "backtest.json", "llm-eval.json", "calibration.json"]);
 
 export async function readData<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
-  if (DATA_URL) {
+  const base = SNAPSHOT_URL && SNAPSHOT_FILES.has(file) ? SNAPSHOT_URL : DATA_URL;
+  if (base) {
     try {
-      const res = await fetch(`${DATA_URL}/${file}`, { cache: "no-store" });
+      const res = await fetch(`${base}/${file}`, { cache: "no-store" });
       if (!res.ok) return null;
       return { data: (await res.json()) as T, updatedAt: new Date(res.headers.get("last-modified") ?? Date.now()) };
     } catch {
@@ -63,6 +67,7 @@ export interface Census {
     topCategories: { category: string; markets: number; volume24hUsd: number }[];
   };
   hip4: { markets: number; twoSided: number; spreadMedian: number; spreadP75: number } | { error: string } | null;
+  kalshi?: { markets: number; top0_1PctShare: number; top1PctShare: number; zeroDaily: number; twoSidedShare: number; spreadMedian: number } | { error: string } | null;
 }
 
 export interface ArmSummary {

@@ -1,7 +1,7 @@
 // Market-wide census of prediction-market liquidity: how much of the catalog is tradeable?
 // Usage: node packages/engine/src/cli/census.ts [--cached] [bookSample=400]
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { depthNear, Hip4, mapLimit, Polymarket, spread, type Market } from "@longtail/core";
+import { depthNear, Hip4, Kalshi, mapLimit, Polymarket, spread, type KalshiMarket, type Market } from "@longtail/core";
 import { assessRules, infoRegime } from "../rules.ts";
 
 const args = process.argv.slice(2);
@@ -68,6 +68,26 @@ for (const m of addressable) {
   c.markets++;
   c.volume24hUsd += m.volume24h;
   byCategory.set(m.category, c);
+}
+
+// Kalshi (read-only): the same structure on the regulated US venue.
+let kalshi: unknown = null;
+try {
+  const kCache = "data/kalshi-markets.json";
+  const km: KalshiMarket[] = cached && existsSync(kCache)
+    ? (JSON.parse(readFileSync(kCache, "utf8")) as { ticker: string; event_ticker: string; title: string; yes_bid_dollars?: string; yes_ask_dollars?: string; volume_24h_fp?: string; close_time?: string; volume24h?: number; bid?: number | null; ask?: number | null }[]).map((m) =>
+        "volume24h" in m && m.volume24h !== undefined
+          ? (m as unknown as KalshiMarket)
+          : { ticker: m.ticker, eventTicker: m.event_ticker, title: m.title, bid: Number(m.yes_bid_dollars) > 0 ? Number(m.yes_bid_dollars) : null, ask: Number(m.yes_ask_dollars) > 0 && Number(m.yes_ask_dollars) < 1 ? Number(m.yes_ask_dollars) : null, volume24h: Number(m.volume_24h_fp ?? 0), closeTime: m.close_time ? Date.parse(m.close_time) : null },
+      )
+    : await new Kalshi().listOpen();
+  const v = km.map((m) => m.volume24h).sort((a, b) => b - a);
+  const tot = v.reduce((a, b) => a + b, 0) || 1;
+  const topShare = (f: number) => v.slice(0, Math.max(1, Math.floor(f * v.length))).reduce((a, b) => a + b, 0) / tot;
+  const two = km.filter((m) => m.bid !== null && m.ask !== null).map((m) => m.ask! - m.bid!);
+  kalshi = { markets: km.length, top0_1PctShare: topShare(0.001), top1PctShare: topShare(0.01), zeroDaily: v.filter((x) => x === 0).length / v.length, twoSidedShare: two.length / km.length, spreadMedian: q(two, 0.5) };
+} catch (e) {
+  kalshi = { error: String(e) };
 }
 
 let hip4: unknown = null;
@@ -168,6 +188,7 @@ const report = {
     topCategories: [...byCategory.entries()].sort((a, b) => b[1].markets - a[1].markets).slice(0, 15).map(([category, v]) => ({ category, ...v })),
   },
   hip4,
+  kalshi,
 };
 writeFileSync("data/census.json", JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report, null, 2));

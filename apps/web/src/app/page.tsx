@@ -19,6 +19,7 @@ export default async function ProblemPage() {
   }
   const { polymarket: pm, charts } = c.data;
   const hip4 = c.data.hip4 && "markets" in c.data.hip4 ? c.data.hip4 : null;
+  const kalshi = c.data.kalshi && "markets" in c.data.kalshi ? c.data.kalshi : null;
   const lt = pm.addressableLongTail;
   const rw = c.data.rewards;
   const bottom = charts.rankBuckets.at(-1);
@@ -61,6 +62,52 @@ export default async function ProblemPage() {
           </p>
         </Card>
       </div>
+
+      <Card title="Same shape on every venue" note="open markets, last 24h">
+        <div className="-mx-4 overflow-x-auto">
+          <table className="w-full min-w-[640px] text-[12px]">
+            <thead className="text-left text-[11px] uppercase tracking-[0.06em] text-muted">
+              <tr>
+                <th className="px-4 pb-2 font-normal">Venue</th>
+                <th className="pb-2 text-right font-normal">Open markets</th>
+                <th className="pb-2 text-right font-normal">Volume in top 1%</th>
+                <th className="pb-2 text-right font-normal">Traded $0 in 24h</th>
+                <th className="px-4 pb-2 text-right font-normal">Median spread (two-sided)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t border-border">
+                <td className="px-4 py-2">Polymarket</td>
+                <td className="num py-2 text-right">{int(pm.all.markets)}</td>
+                <td className="num py-2 text-right text-warn">{pct(pm.all.top1PctShare)}</td>
+                <td className="num py-2 text-right">{pct(pm.all.zeroDaily)}</td>
+                <td className="num px-4 py-2 text-right">{cents(pm.all.spreadMedian)}</td>
+              </tr>
+              {kalshi && (
+                <tr className="border-t border-border">
+                  <td className="px-4 py-2">Kalshi <span className="text-muted">(CFTC-regulated, combos excluded)</span></td>
+                  <td className="num py-2 text-right">{int(kalshi.markets)}</td>
+                  <td className="num py-2 text-right text-warn">{pct(kalshi.top1PctShare)}</td>
+                  <td className="num py-2 text-right">{pct(kalshi.zeroDaily)}</td>
+                  <td className="num px-4 py-2 text-right">{cents(kalshi.spreadMedian)}</td>
+                </tr>
+              )}
+              {hip4 && (
+                <tr className="border-t border-border">
+                  <td className="px-4 py-2">Hyperliquid HIP-4</td>
+                  <td className="num py-2 text-right">{int(hip4.markets)}</td>
+                  <td className="num py-2 text-right text-muted">—</td>
+                  <td className="num py-2 text-right text-muted">—</td>
+                  <td className="num px-4 py-2 text-right">{cents(hip4.spreadMedian)}</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-[12px] leading-relaxed text-muted">
+          Not a Polymarket quirk: the regulated US venue has the same long tail. Listing is cheap everywhere; liquidity is not.
+        </p>
+      </Card>
 
       {rw && (
         <Card title="The money is already there" note="Polymarket liquidity rewards, current configs">

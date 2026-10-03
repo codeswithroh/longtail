@@ -1,0 +1,478 @@
+{
+  "generatedAt": "2026-10-03T10:26:06.996Z",
+  "rewards": {
+    "all": {
+      "markets": 16797,
+      "dailyUsd": 124979,
+      "medianDailyUsd": 2
+    },
+    "addressable": {
+      "markets": 6071,
+      "dailyUsd": 56315,
+      "medianDailyUsd": 2
+    },
+    "addressableLongTail": {
+      "markets": 5637,
+      "dailyUsd": 29234,
+      "medianDailyUsd": 2
+    },
+    "zeroVolumeAddressable": {
+      "markets": 2815,
+      "dailyUsd": 11594,
+      "medianDailyUsd": 2
+    }
+  },
+  "charts": {
+    "lorenz": [
+      {
+        "marketsPct": 0,
+        "volumePct": 0
+      },
+      {
+        "marketsPct": 2,
+        "volumePct": 97.19
+      },
+      {
+        "marketsPct": 4,
+        "volumePct": 99.32
+      },
+      {
+        "marketsPct": 6,
+        "volumePct": 99.88
+      },
+      {
+        "marketsPct": 8,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 10,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 12,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 14,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 16,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 18,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 20,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 22,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 24,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 26,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 28,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 30,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 32,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 34,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 36,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 38,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 40,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 42,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 44,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 46,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 48,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 50,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 52,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 54,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 56,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 58,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 60,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 62,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 64,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 66,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 68,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 70,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 72,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 74,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 76,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 78,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 80,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 82,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 84,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 86,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 88,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 90,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 92,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 94,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 96,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 98,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 100,
+        "volumePct": 100
+      }
+    ],
+    "rankBuckets": [
+      {
+        "label": "top 0.1%",
+        "markets": 186,
+        "volumeShare": 0.6135442114833858
+      },
+      {
+        "label": "0.1–1%",
+        "markets": 1679,
+        "volumeShare": 0.31820210194159626
+      },
+      {
+        "label": "1–10%",
+        "markets": 16791,
+        "volumeShare": 0.06825368657503059
+      },
+      {
+        "label": "bottom 90%",
+        "markets": 167905,
+        "volumeShare": 0
+      }
+    ],
+    "spreadHist": {
+      "live": [
+        {
+          "label": "0–1¢",
+          "share": 0.02358165897569413
+        },
+        {
+          "label": "1–2¢",
+          "share": 0.019763106075569043
+        },
+        {
+          "label": "2–5¢",
+          "share": 0.04792343741583323
+        },
+        {
+          "label": "5–10¢",
+          "share": 0.06679474978902196
+        },
+        {
+          "label": "10–20¢",
+          "share": 0.03255944792583149
+        },
+        {
+          "label": "20–50¢",
+          "share": 0.05180184224229257
+        },
+        {
+          "label": "50–100¢",
+          "share": 0.621047528414702
+        },
+        {
+          "label": "one-sided",
+          "share": 0.13652822916105556
+        }
+      ],
+      "slow": [
+        {
+          "label": "0–1¢",
+          "share": 0.3581254491325326
+        },
+        {
+          "label": "1–2¢",
+          "share": 0.11887896519864491
+        },
+        {
+          "label": "2–5¢",
+          "share": 0.17564931731855046
+        },
+        {
+          "label": "5–10¢",
+          "share": 0.10948567908838928
+        },
+        {
+          "label": "10–20¢",
+          "share": 0.05635971666153372
+        },
+        {
+          "label": "20–50¢",
+          "share": 0.041320192998665434
+        },
+        {
+          "label": "50–100¢",
+          "share": 0.05902884714095062
+        },
+        {
+          "label": "one-sided",
+          "share": 0.08115183246073299
+        }
+      ]
+    }
+  },
+  "polymarket": {
+    "all": {
+      "markets": 186561,
+      "volume24hUsd": 23674359,
+      "top1PctShare": 0.9317463134249798,
+      "top10PctShare": 0.9999999999999978,
+      "under1kDaily": 0.990491045824154,
+      "zeroDaily": 0.9246305497933651,
+      "twoSidedShare": 0.869254560170668,
+      "spreadMedian": 0.94,
+      "spreadP75": 0.96,
+      "spreadAtLeast5c": 0.8323539024104484,
+      "liquidityMedianUsd": 9
+    },
+    "live": {
+      "markets": 167079,
+      "volume24hUsd": 8131067,
+      "top1PctShare": 0.9618395735530394,
+      "top10PctShare": 0.9999999999999988,
+      "under1kDaily": 0.9952058607006267,
+      "zeroDaily": 0.9601206614834898,
+      "twoSidedShare": 0.8634717708389444,
+      "spreadMedian": 0.95,
+      "spreadP75": 0.96,
+      "spreadAtLeast5c": 0.8986885518618127,
+      "liquidityMedianUsd": 6
+    },
+    "slow": {
+      "markets": 19482,
+      "volume24hUsd": 15543292,
+      "top1PctShare": 0.7305999473395902,
+      "top10PctShare": 0.9749967261415159,
+      "under1kDaily": 0.9500564623755261,
+      "zeroDaily": 0.6202648598706498,
+      "twoSidedShare": 0.918848167539267,
+      "spreadMedian": 0.020000000000000018,
+      "spreadP75": 0.06000000000000005,
+      "spreadAtLeast5c": 0.29774872912127814,
+      "liquidityMedianUsd": 1963
+    },
+    "addressable": {
+      "markets": 15189,
+      "volume24hUsd": 11859592,
+      "top1PctShare": 0.7516700968819746,
+      "top10PctShare": 0.9737825660900924,
+      "under1kDaily": 0.9514780433208243,
+      "zeroDaily": 0.6105734413062084,
+      "twoSidedShare": 0.9261965896372375,
+      "spreadMedian": 0.022,
+      "spreadP75": 0.06899999999999999,
+      "spreadAtLeast5c": 0.31937731020756327,
+      "liquidityMedianUsd": 1901
+    },
+    "addressableLongTail": {
+      "markets": 14452,
+      "sampledBooks": 400,
+      "depthWithin2cMedianUsd": 4,
+      "depthWithin2cP25Usd": 0,
+      "bookSpreadMedian": 0.020000000000000018,
+      "bookSpreadP75": 0.055999999999999994
+    },
+    "topCategories": [
+      {
+        "category": "Midterms",
+        "markets": 4626,
+        "volume24hUsd": 127360.00969299978
+      },
+      {
+        "category": "Politics",
+        "markets": 1887,
+        "volume24hUsd": 2859803.848672997
+      },
+      {
+        "category": "AI",
+        "markets": 1396,
+        "volume24hUsd": 1102060.6649359977
+      },
+      {
+        "category": "Brazil",
+        "markets": 1208,
+        "volume24hUsd": 481145.7862909999
+      },
+      {
+        "category": "Crypto",
+        "markets": 699,
+        "volume24hUsd": 693196.2948660002
+      },
+      {
+        "category": "World",
+        "markets": 400,
+        "volume24hUsd": 102429.87829599995
+      },
+      {
+        "category": "turnout",
+        "markets": 361,
+        "volume24hUsd": 8161.867604999997
+      },
+      {
+        "category": "Canada",
+        "markets": 308,
+        "volume24hUsd": 13475.590592000004
+      },
+      {
+        "category": "Tech",
+        "markets": 273,
+        "volume24hUsd": 18077.662298000003
+      },
+      {
+        "category": "Trump",
+        "markets": 255,
+        "volume24hUsd": 103444.94398099999
+      },
+      {
+        "category": "Games",
+        "markets": 151,
+        "volume24hUsd": 4483.949486
+      },
+      {
+        "category": "Peru",
+        "markets": 148,
+        "volume24hUsd": 11448.876798000003
+      },
+      {
+        "category": "Iran",
+        "markets": 143,
+        "volume24hUsd": 359716.4471339999
+      },
+      {
+        "category": "Mayoral",
+        "markets": 123,
+        "volume24hUsd": 5543.775999
+      },
+      {
+        "category": "Movies",
+        "markets": 102,
+        "volume24hUsd": 59322.45335100002
+      }
+    ]
+  },
+  "hip4": {
+    "markets": 236,
+    "twoSided": 236,
+    "spreadMedian": 0.029389999999999916,
+    "spreadP75": 0.4455699999999999
+  },
+  "kalshi": {
+    "markets": 131920,
+    "top0_1PctShare": 0.4301119945776932,
+    "top1PctShare": 0.8217554958660306,
+    "zeroDaily": 0.8260764099454214,
+    "twoSidedShare": 0.6887204366282595,
+    "spreadMedian": 0.069
+  }
+}
