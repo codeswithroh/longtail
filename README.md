@@ -2,7 +2,7 @@
 
 **AI-agent liquidity for the long tail of prediction markets.**
 
-**Live dashboard: [longtail-rosy.vercel.app](https://longtail-rosy.vercel.app)** · The engine runs every 5 minutes on GitHub Actions ([live-engine](.github/workflows/live-engine.yml)), and its state is published to the [`live-state`](https://github.com/codeswithroh/longtail/tree/live-state) branch.
+**Site: [longtail-rosy.vercel.app](https://longtail-rosy.vercel.app)** · **App: [/app](https://longtail-rosy.vercel.app/app)** · The engine runs every 5 minutes on GitHub Actions ([live-engine](.github/workflows/live-engine.yml)), and its state is published to the [`live-state`](https://github.com/codeswithroh/longtail/tree/live-state) branch.
 
 **Vault on HyperEVM testnet (chain 998):** `LongtailVault` [`0x1c4DA07db8A2b1D23dBecDE9aAD3707dfc733AfC`](contracts/broadcast/Deploy.s.sol/998/run-latest.json) · test asset tUSDC `0x619E00476F63af724e478aDa07c07530795943be` · keeper `0x66B3A4B691699d0fbA15CefF3B7f11c71f3C9667`. Every hour the keeper posts `reportNav`, pinned to the hash of the published paper state.
 
@@ -10,17 +10,17 @@ Creating a prediction market is now nearly free. Making it tradeable is not. Lon
 
 ## The problem (measured, not asserted)
 
-From a full census of Polymarket on Oct 1, 2026 (`pnpm census`):
+From a full census of Polymarket on Oct 3, 2026 (`pnpm census`):
 
 | | |
 |---|---|
-| Open markets with an order book | **206,349** |
-| Share of 24h volume in the top 0.1% (206 markets) | **59%** (top 1%: 92%) |
-| Share of 24h volume in the bottom 90% (185,715 markets) | **~0%** |
-| Slow-information markets that traded $0 in 24h | **60%** (95% traded under $1k) |
-| Median depth within ±2¢ of the mid, addressable long tail (400 live books) | **$3** |
-| Liquidity rewards Polymarket pays makers | **$183.6k/day** across 17,989 markets |
-| …of which on the addressable long tail | **$50.2k/day** across 6,924 markets (~$18M/yr) |
+| Open markets with an order book | **186,561** |
+| Share of 24h volume in the top 0.1% (186 markets) | **61%** (top 1%: 93%) |
+| Share of 24h volume in the bottom 90% (167,905 markets) | **~0%** |
+| Slow-information markets that traded $0 in 24h | **62%** (95% traded under $1k) |
+| Median depth within ±2¢ of the mid, addressable long tail (400 live books) | **$4** |
+| Liquidity rewards Polymarket pays makers | **$125.0k/day** across 16,797 markets |
+| …of which on the addressable long tail | **$29.2k/day** across 5,637 markets (~$10.7M/yr) |
 
 It isn't a Polymarket quirk. **Kalshi** (CFTC-regulated, combos excluded) lists 131,920 open markets: 82% of 24h volume is in the top 1%, and 83% traded nothing. **Hyperliquid HIP-4** lists 236 outcome books with a 45¢ 75th-percentile spread.
 
@@ -81,7 +81,7 @@ packages/engine   forecast, calibration, rules/regime, toxicity, risk, quoter, r
   src/live        resumable live engine, HIP-4 executor
   src/llm.ts      Claude forecasting agent (web search + structured output)
 contracts         LongtailVault.sol (ERC-4626) + Foundry tests
-apps/web          dashboard: Problem · Backtest · Live · Vault (Next.js)
+apps/web          landing page (/) and app (/app: Overview · Markets · Research · Vault), Next.js
 ```
 
 ## Run it

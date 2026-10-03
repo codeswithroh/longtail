@@ -24,3 +24,18 @@ export function ago(d: Date | number) {
 }
 
 export const tone = (x: number | null | undefined) => (x == null || x === 0 ? "text-muted" : x > 0 ? "text-gain" : "text-loss");
+
+const REASON_LABEL: Record<string, string> = {
+  "ends in": "ends too far out",
+  fair: "price in the tails",
+  "resolves in": "resolves too soon",
+  "no end date": "no end date",
+  "news shock": "news shock",
+  "market loss limit": "loss limit hit",
+};
+
+/** Collapse a risk-engine reason ("resolution risk 0.62: …") into a readable family label. */
+export function reasonLabel(r: string) {
+  const family = r.replace(/\s*[\d.$(].*$/, "").replace(/:.*$/, "").trim() || r;
+  return REASON_LABEL[family] ?? family;
+}

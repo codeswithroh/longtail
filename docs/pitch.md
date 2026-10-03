@@ -4,9 +4,9 @@ Working notes for the presentation video and the submission. The numbers come fr
 
 ## Pitch video (about 3 min): beats, not a script
 
-1. **Hook (15s).** Creating a prediction market is free now; making it tradeable isn't. Show the Problem page: 206k Polymarket markets, top 0.1% hold 59% of volume, and the bottom 90% hold ~0%. The median depth near the mid is **$3**.
-2. **It's structural (20s).** Same shape on Kalshi (82% of volume in the top 1%, 83% of markets idle) and on HIP-4 (45¢ spreads). Venues already pay **$50k/day** in rewards on this tail, and almost nobody collects it.
-3. **Why nobody does it (25s).** Naive market making on the tail loses **39%** of capital to adverse selection (Backtest page, naive arm). The problem isn't quoting. It's knowing which markets *not* to quote.
+1. **Hook (15s).** Creating a prediction market is free now; making it tradeable isn't. Open on the landing page: 187k Polymarket markets, top 0.1% hold 61% of volume, and the bottom 90% hold ~0%. The median depth near the mid is **$4**.
+2. **It's structural (20s).** Same shape on Kalshi (82% of volume in the top 1%, 83% of markets idle) and on HIP-4 (45¢ spreads). Venues already pay **$29k/day** in rewards on this tail, and almost nobody collects it.
+3. **Why nobody does it (25s).** Naive market making on the tail loses **39%** of capital to adverse selection (Research tab, naive arm). The problem isn't quoting. It's knowing which markets *not* to quote.
 4. **What Longtail is (45s).** Walk the pipeline:
    - regime classifier (live vs slow information)
    - calibrated fair value (long-shot bias)
@@ -29,7 +29,7 @@ Working notes for the presentation video and the submission. The numbers come fr
 
 ## Demo recording shot list (dashboard)
 
-`/` Problem → `/backtest` (arm chart, calibration curve, agent eval) → `/live` (triage column, a refused market with its reason) → `/vault` (on-chain card, NAV reports, HIP-4 orders). Record at 1440×900, dark mode.
+Landing `/` (hero, problem, evidence) → **Launch app** → `/app` Overview (KPIs, run chart, AI triage ring) → `/app/markets` (open a card the AI refused, show its reasoning) → `/app/research` (walk-forward bars, calibration, triage split) → `/app/vault` (capital flow, NAV reports, live HIP-4 quotes). Record at 1440×900; show one phone-width pass of the Markets feed.
 
 ## Submission: outline and open questions (fill in yourself)
 
