@@ -85,6 +85,7 @@ export function decide(
   if (!m.acceptingOrders) return stop("venue not accepting orders");
   if (!cfg.allowLive && infoRegime(m) === "live") return stop("live-information market");
   if (hoursToEnd < cfg.pullBeforeEndHours) return stop(`resolves in ${hoursToEnd.toFixed(1)}h`);
+  if (m.endTime === null) return stop("no end date (capital lock-up)");
   if (hoursToEnd > cfg.maxDaysToEnd * 24) return stop(`ends in ${(hoursToEnd / 24).toFixed(0)}d (capital lock-up)`);
   if (rules.score > cfg.maxRuleScore) return stop(`resolution risk ${rules.score.toFixed(2)}: ${rules.reasons.join("; ")}`);
   if (toxicity > cfg.maxToxicity) return stop(`toxic flow (adverse markout ${(toxicity * 100).toFixed(1)}c)`);
