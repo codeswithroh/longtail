@@ -20,6 +20,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@longtail/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@longtail/engine':
+        specifier: workspace:*
+        version: link:../../packages/engine
       '@number-flow/react':
         specifier: ^0.6.2
         version: 0.6.2(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -41,6 +47,9 @@ importers:
       recharts:
         specifier: ^3.10.1
         version: 3.10.1(@types/react@19.3.0)(react-dom@19.2.8(react@19.2.8))(react-is@19.3.0)(react@19.2.8)(redux@5.0.1)
+      viem:
+        specifier: ^2.57.2
+        version: 2.57.2(typescript@5.9.3)(zod@4.6.5)
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4

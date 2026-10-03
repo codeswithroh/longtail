@@ -1,0 +1,11 @@
+# Only the web app and the workspace packages it imports are needed to build the site.
+data
+contracts
+snapshot
+docs
+scripts
+.github
+**/node_modules
+**/.next
+**/.env*
+.env

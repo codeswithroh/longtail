@@ -151,7 +151,7 @@ export default async function Overview() {
           title="Vault on HyperEVM"
           icon={Vault}
           action={
-            <Link href="/app/vault" className="inline-flex items-center gap-1 text-[12px] text-accent hover:underline">
+            <Link href="/app/earn" className="inline-flex items-center gap-1 text-[12px] text-accent hover:underline">
               open <ArrowRight size={13} aria-hidden />
             </Link>
           }

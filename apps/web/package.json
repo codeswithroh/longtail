@@ -14,7 +14,10 @@
     "next": "16.3.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "viem": "^2.57.2",
+    "@longtail/core": "workspace:*",
+    "@longtail/engine": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

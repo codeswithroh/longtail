@@ -6,3 +6,4 @@ data/
 .next
 contracts/out
 contracts/cache
+.vercel

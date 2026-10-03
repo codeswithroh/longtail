@@ -1,3 +1,4 @@
+import { dirname } from "node:path";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
@@ -91,7 +92,7 @@ export class LlmForecaster implements ExternalForecaster {
   }
 
   private persist() {
-    mkdirSync("data", { recursive: true });
+    mkdirSync(dirname(this.opts.cacheFile), { recursive: true });
     writeFileSync(this.opts.cacheFile, JSON.stringify(Object.fromEntries(this.cache)));
   }
 

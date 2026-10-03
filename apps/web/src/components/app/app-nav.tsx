@@ -1,14 +1,15 @@
 "use client";
 import clsx from "clsx";
-import { FlaskConical, LayoutDashboard, Radar, Vault } from "lucide-react";
+import { FlaskConical, LayoutDashboard, PiggyBank, Radar, ScanSearch } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export const APP_NAV = [
   { href: "/app", label: "Overview", icon: LayoutDashboard },
   { href: "/app/markets", label: "Markets", icon: Radar },
+  { href: "/app/analyze", label: "Analyze", icon: ScanSearch },
+  { href: "/app/earn", label: "Earn", icon: PiggyBank },
   { href: "/app/research", label: "Research", icon: FlaskConical },
-  { href: "/app/vault", label: "Vault", icon: Vault },
 ];
 
 const isActive = (path: string, href: string) => (href === "/app" ? path === "/app" : path.startsWith(href));
@@ -43,7 +44,7 @@ export function SideNav() {
 export function TabBar() {
   const path = usePathname();
   return (
-    <nav aria-label="App" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-border bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+    <nav aria-label="App" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-bg/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
       {APP_NAV.map(({ href, label, icon: Icon }) => {
         const active = isActive(path, href);
         return (

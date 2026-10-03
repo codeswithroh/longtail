@@ -252,7 +252,7 @@ export function MarketsFeed({ initial }: { initial: PaperState }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search markets"
-            className="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-[13px] text-text placeholder:text-muted focus:border-accent/50 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-surface py-2 pl-9 pr-3 text-[13px] text-text placeholder:text-muted focus:border-accent/50 focus:outline-none focus-visible:outline-none"
           />
         </label>
       </div>

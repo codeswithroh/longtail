@@ -237,6 +237,25 @@ export class Polymarket implements Venue {
     return out;
   }
 
+  /** Open markets for a market slug, or every open market in an event slug (polymarket.com URLs carry either). */
+  async findBySlug(slug: string): Promise<Market[]> {
+    const keep = (gs: GammaMarket[]) => {
+      const out: Market[] = [];
+      for (const g of gs) {
+        const m = toMarket(g);
+        if (!m || !m.acceptingOrders) continue;
+        const no = parse<string[]>(g.clobTokenIds, [])[1];
+        if (no) noTokens.set(m.id, no);
+        out.push(m);
+      }
+      return out;
+    };
+    const direct = await getJson<GammaMarket[]>(`${GAMMA}/markets?include_tag=true&slug=${encodeURIComponent(slug)}`).catch(() => [] as GammaMarket[]);
+    if (direct.length) return keep(direct);
+    const events = await getJson<{ markets?: GammaMarket[] }[]>(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`).catch(() => []);
+    return keep(events.flatMap((e) => e.markets ?? []));
+  }
+
   /** 1 / 0 once the market has resolved on-chain, otherwise null. */
   async getResolution(market: Market): Promise<number | null> {
     const [g] = await getJson<GammaMarket[]>(`${GAMMA}/markets?condition_ids=${market.groupId}`);

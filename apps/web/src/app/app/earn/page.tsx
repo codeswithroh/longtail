@@ -3,6 +3,7 @@ import type { LucideIcon } from "lucide-react";
 import { connection } from "next/server";
 import { NavChart } from "@/components/charts";
 import { CopyChip } from "@/components/app/copy-chip";
+import { EarnPanel } from "@/components/app/earn-panel";
 import { Chip, Kpi, Panel, PriceTrack, Ring } from "@/components/viz";
 import { readData } from "@/lib/data";
 import { ago, usd } from "@/lib/format";
@@ -11,13 +12,24 @@ import { readVault, VAULT } from "@/lib/vault";
 
 function FlowNode({ icon: Icon, title, value, sub, lit }: { icon: LucideIcon; title: string; value: string; sub: string; lit?: boolean }) {
   return (
-    <div className={`relative z-10 flex min-w-0 flex-col items-center rounded-xl border p-4 text-center ${lit ? "border-accent/50 bg-accent/5" : "border-border bg-surface"}`}>
+    <div className={`flex min-w-0 flex-1 flex-col items-center rounded-xl border p-4 text-center ${lit ? "border-accent/50 bg-[#0f2226]" : "border-border bg-bg/40"}`}>
       <span className={`grid size-11 place-items-center rounded-full ${lit ? "bg-accent text-bg" : "bg-raised text-accent"}`}>
         <Icon size={20} aria-hidden />
       </span>
       <div className="mt-2.5 text-[13px] font-medium">{title}</div>
       <div className="num mt-1 text-[16px] text-text">{value}</div>
       <div className="mt-0.5 text-[11px] text-muted">{sub}</div>
+    </div>
+  );
+}
+
+/** Animated link between flow nodes: vertical on phones, horizontal from md up. */
+function Connector({ label }: { label: string }) {
+  return (
+    <div className="flex shrink-0 items-center justify-center gap-2 py-1.5 md:w-20 md:flex-col md:gap-1 md:py-0" aria-hidden>
+      <div className="flow-line-v h-5 w-px md:hidden" />
+      <div className="flow-line hidden h-px w-full md:block" />
+      <span className="text-[10px] uppercase tracking-[0.08em] text-muted">{label}</span>
     </div>
   );
 }
@@ -31,7 +43,7 @@ const GUARDS: { icon: LucideIcon; label: string }[] = [
   { icon: Wallet, label: "withdrawals from idle cash" },
 ];
 
-export default async function VaultPage() {
+export default async function EarnPage() {
   await connection();
   const [v, navs, hip4] = await Promise.all([readVault(), readData<NavReport[]>("nav-reports.json"), readData<Hip4Run>("hip4-testnet.json")]);
   const reports = navs?.data ?? [];
@@ -47,12 +59,16 @@ export default async function VaultPage() {
 
   return (
     <div className="space-y-4">
+      <EarnPanel pricePerShare={v?.pricePerShare ?? null} />
+      <h2 className="pt-3 text-[12px] font-medium uppercase tracking-[0.08em] text-muted">Inside the vault</h2>
       <Panel title="How capital flows" icon={Vault} action={<Chip tone={v ? "gain" : "warn"}>{v ? "live on HyperEVM testnet" : "RPC unreachable"}</Chip>}>
-        <div className="relative grid grid-cols-2 gap-3 md:grid-cols-4">
-          <div className="flow-line pointer-events-none absolute left-[12%] right-[12%] top-[38px] hidden h-px md:block" aria-hidden />
+        <div className="flex flex-col items-stretch md:flex-row md:items-center">
           <FlowNode icon={Wallet} title="LPs" value={v ? `${v.totalSupply.toFixed(0)}` : "—"} sub="ltUSDC shares" />
+          <Connector label="deposit" />
           <FlowNode icon={Vault} title="Vault" value={v ? usd(v.totalAssets) : "—"} sub={v ? `share price ${v.pricePerShare.toFixed(4)}` : "ERC-4626"} lit />
+          <Connector label="deploy" />
           <FlowNode icon={Bot} title="Keeper" value={v ? usd(v.deployedValue) : "—"} sub={v?.lastReportAt ? `NAV ${ago(v.lastReportAt)}` : "deployed"} />
+          <Connector label="quote" />
           <FlowNode icon={Zap} title="Venues" value={`${resting.length} orders`} sub={h?.dryRun ? "dry run" : "Hyperliquid testnet"} />
         </div>
       </Panel>
