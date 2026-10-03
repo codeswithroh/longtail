@@ -124,3 +124,23 @@ export function CalibrationChart({ points }: { points: { p: number; y: number; n
     </ResponsiveContainer>
   );
 }
+
+/** Paper PnL and estimated rewards over the run. */
+export function RunChart({ rows }: { rows: { t: number; pnlUsd: number; rewardsUsd: number }[] }) {
+  const data = rows.map((r) => ({ t: r.t, pnl: r.pnlUsd, rewards: r.rewardsUsd, net: +(r.pnlUsd + r.rewardsUsd).toFixed(2) }));
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart data={data} margin={{ top: 8, right: 8, bottom: 4, left: 0 }}>
+        <CartesianGrid stroke={C.grid} vertical={false} />
+        <XAxis dataKey="t" type="number" domain={["dataMin", "dataMax"]} tick={tick} stroke={C.grid} tickFormatter={(v) => new Date(v).toISOString().slice(5, 10)} />
+        <YAxis tick={tick} stroke={C.grid} tickFormatter={(v) => `$${v}`} />
+        <ReferenceLine y={0} stroke={C.axis} />
+        <Tooltip {...tooltip} labelFormatter={(l) => new Date(Number(l)).toISOString().replace("T", " ").slice(0, 16)} formatter={(v, n) => [`$${Number(v).toFixed(2)}`, n === "pnl" ? "trading PnL" : n === "rewards" ? "rewards (est.)" : "net"]} />
+        <Legend wrapperStyle={{ fontSize: 11, color: C.axis }} formatter={(v) => (v === "pnl" ? "trading PnL (mark-to-fair)" : v === "rewards" ? "rewards (estimated)" : "net")} />
+        <Line dataKey="pnl" stroke={C.loss} dot={false} strokeWidth={1.5} isAnimationActive={false} />
+        <Line dataKey="rewards" stroke={C.gain} dot={false} strokeWidth={1.5} strokeDasharray="4 3" isAnimationActive={false} />
+        <Line dataKey="net" stroke={C.accent} dot={false} strokeWidth={2} isAnimationActive={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}

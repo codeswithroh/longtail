@@ -130,6 +130,8 @@ export interface PaperMarket {
   rewards: { daily: number; maxSpread: number; share: number | null; accruedUsd: number } | null;
   position: { shares: number; pnl: number; fills: number; volumeUsd: number; edgeUsd: number } | null;
   rules: { score: number; reasons: string[] };
+  ai?: { p: number; confidence: number; insiderRisk: number; clarity: number; rationale: string; evidence: string[] } | null;
+  settled?: { outcome: number; at: number } | null;
 }
 
 export interface PaperState {
@@ -153,7 +155,9 @@ export interface PaperState {
     markout5m: number | null;
     markout30m: number | null;
     pullReasons: Record<string, number>;
-    llm: { calls: number; inputTokens: number; outputTokens: number; cacheReadTokens: number; searches: number } | null;
+    llm: { calls: number; inputTokens: number; outputTokens: number; cacheReadTokens: number; searches: number; triaged?: number; gated?: number } | null;
+    settledMarkets?: number;
+    realizedUsd?: number;
   };
   markets: PaperMarket[];
 }
@@ -166,4 +170,44 @@ export interface LlmEval {
   forecast: { brierMarket: number; brierCalibrated: number; brierLlm: number; brierBlend: number };
   triage: { thresholds: { maxInsiderRisk: number; minResolutionClarity: number }; flagged: { markets: number; pnlUsd: number }; kept: { markets: number; pnlUsd: number } };
   rows: { id: string; question: string; outcome: number; price: number; probability: number; insider_risk: number; resolution_clarity: number; rationale: string; flagged: boolean; pnlUsd: number }[];
+}
+
+export interface TimelineRow {
+  t: number;
+  quoting: number;
+  markets: number;
+  fills: number;
+  pnlUsd: number;
+  rewardsUsd: number;
+  runRate: number;
+  gross: number;
+}
+
+/** Engine timeline (JSON lines), downsampled to at most `max` points. */
+export async function readTimeline(max = 300): Promise<TimelineRow[]> {
+  const url = process.env.LONGTAIL_DATA_URL;
+  let text = "";
+  try {
+    if (url) {
+      const res = await fetch(`${url}/timeline.jsonl`, { cache: "no-store" });
+      text = res.ok ? await res.text() : "";
+    } else {
+      const p = path.join(DATA_DIR, "timeline.jsonl");
+      text = existsSync(p) ? readFileSync(p, "utf8") : "";
+    }
+  } catch {
+    return [];
+  }
+  const rows = text
+    .split("\n")
+    .filter(Boolean)
+    .flatMap((l) => {
+      try {
+        return [JSON.parse(l) as TimelineRow];
+      } catch {
+        return [];
+      }
+    });
+  const step = Math.max(1, Math.ceil(rows.length / max));
+  return rows.filter((_, i) => i % step === 0 || i === rows.length - 1);
 }

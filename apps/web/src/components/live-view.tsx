@@ -75,6 +75,18 @@ function Row({ m, i }: { m: PaperMarket; i: number }) {
         {prob(m.fair)}
         <span className="text-muted"> ±{m.sigma != null ? (m.sigma * 100).toFixed(1) : "—"}</span>
       </td>
+      <td className="num py-2 text-right" title={m.ai ? `${m.ai.rationale}\n\n${m.ai.evidence.join("\n")}` : "not yet analyzed"}>
+        {m.ai ? (
+          <>
+            {prob(m.ai.p)}
+            <div className={clsx("text-[11px]", m.ai.insiderRisk > 0.3 || m.ai.clarity < 0.6 ? "text-warn" : "text-muted")}>
+              ins {m.ai.insiderRisk.toFixed(2)} · clr {m.ai.clarity.toFixed(2)}
+            </div>
+          </>
+        ) : (
+          <span className="text-muted">—</span>
+        )}
+      </td>
       <td className="py-2 pl-3">
         {quoting ? <Pill tone="accent">quoting</Pill> : <Pill tone="warn">aside</Pill>}
         {reason && <div className="mt-1 line-clamp-1 max-w-[220px] text-[11px] text-muted">{reason}</div>}
@@ -124,7 +136,8 @@ export function LiveView({ initial }: { initial: PaperState }) {
         </span>
         <span>· running since {new Date(s.startedAt).toISOString().replace("T", " ").slice(0, 16)} UTC</span>
         <span>· cycle {s.cycles}</span>
-        <span>· AI forecaster {s.llm ? `on (${s.llm.calls} calls, ${s.llm.searches} searches)` : "off"}</span>
+        <span>· AI agent {s.llm ? `on: ${s.llm.triaged ?? 0} markets analyzed, ${s.llm.gated ?? 0} refused` : "off"}</span>
+        {s.settledMarkets ? <span>· {s.settledMarkets} markets resolved and settled</span> : null}
       </div>
 
       <div className="grid grid-cols-2 gap-x-6 gap-y-5 rounded-md border border-border bg-surface p-5 md:grid-cols-4 xl:grid-cols-7">
@@ -173,7 +186,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
             <div className="py-12 text-center text-[12px] text-muted">{filter === "quoting" ? "The risk engine is standing aside on every market right now." : "Nothing here."}</div>
           ) : (
             <div className="-mx-4 overflow-x-auto">
-              <table className="w-full min-w-[1040px] text-[12px]">
+              <table className="w-full min-w-[1140px] text-[12px]">
                 <thead className="text-left text-[11px] uppercase tracking-[0.06em] text-muted">
                   <tr>
                     <th className="px-4 pb-2 font-normal">Market</th>
@@ -181,6 +194,7 @@ export function LiveView({ initial }: { initial: PaperState }) {
                     <th className="pb-2 text-right font-normal">Spread venue → ours</th>
                     <th className="pb-2 text-right font-normal">Our bid / ask</th>
                     <th className="pb-2 text-right font-normal">Fair ±σ¢</th>
+                    <th className="pb-2 text-right font-normal">AI view</th>
                     <th className="pb-2 pl-3 font-normal">Risk engine</th>
                     <th className="pb-2 text-right font-normal">Reward share</th>
                     <th className="pb-2 text-right font-normal">Pos</th>
