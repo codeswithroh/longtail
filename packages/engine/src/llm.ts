@@ -95,6 +95,12 @@ export class LlmForecaster implements ExternalForecaster {
     writeFileSync(this.opts.cacheFile, JSON.stringify(Object.fromEntries(this.cache)));
   }
 
+  /** Last forecast for a market if still fresh, without calling the API. */
+  cached(marketId: string): LlmForecast | null {
+    const hit = this.cache.get(marketId);
+    return hit && Date.now() - hit.at < this.opts.ttlMs ? hit.forecast : null;
+  }
+
   async analyze(market: Market, book: Book, recent: Trade[]): Promise<LlmForecast | null> {
     const hit = this.cache.get(market.id);
     if (hit && Date.now() - hit.at < this.opts.ttlMs) return hit.forecast;
@@ -152,4 +158,23 @@ export class LlmForecaster implements ExternalForecaster {
     const f = await this.analyze(market, ctx.book, ctx.recent);
     return f ? { p: f.probability, confidence: f.confidence } : null;
   }
+}
+
+/** Thresholds above which the agent's triage disqualifies a market outright. */
+export const TRIAGE = { maxInsiderRisk: 0.3, minResolutionClarity: 0.6 };
+
+/** Fold the agent's triage into the rule assessment the risk engine already understands. */
+export function triageRules(base: { score: number; reasons: string[] }, ai: LlmForecast | null) {
+  if (!ai) return base;
+  const reasons = [...base.reasons];
+  let score = base.score;
+  if (ai.insider_risk > TRIAGE.maxInsiderRisk) {
+    score = Math.max(score, 1);
+    reasons.push(`AI triage: insider risk ${ai.insider_risk.toFixed(2)}`);
+  }
+  if (ai.resolution_clarity < TRIAGE.minResolutionClarity) {
+    score = Math.max(score, 1);
+    reasons.push(`AI triage: unclear resolution ${ai.resolution_clarity.toFixed(2)}`);
+  }
+  return { score, reasons };
 }

@@ -60,6 +60,12 @@ function describe(o: Outcome, q: Question | undefined): { question: string; cate
     case "Recurring Named Outcome":
     case "Recurring":
       return { question: `${qs.underlying ?? underlying} ${o.description}`, category: "Crypto & markets", end };
+    case "policyRateNoChange":
+    case "policyRateDecrease":
+    case "policyRateIncrease": {
+      const move = t === "policyRateNoChange" ? "no change" : t === "policyRateDecrease" ? "a cut" : "a hike";
+      return { question: `${qs.institution ?? "Central bank"} ${qs.decisionLabel ?? "decision"}: ${move}?`, category: "Economy", end };
+    }
     default: {
       const label = spec.participant ?? spec.description ?? o.description;
       const comp = qs.competition ?? qs.institution ?? q?.name ?? "";
@@ -125,6 +131,12 @@ export class Hip4 implements Venue {
       .filter((t) => t.time > sinceTs)
       .map((t) => ({ marketId: market.id, ts: t.time, price: Number(t.px), size: Number(t.sz), side: t.side === "B" ? ("buy" as const) : ("sell" as const) }))
       .sort((a, b) => a.ts - b.ts);
+  }
+
+  /** settleFraction once the outcome has settled, otherwise null. */
+  async getResolution(market: Market): Promise<number | null> {
+    const r = await postJson<{ settleFraction?: string } | null>(INFO, { type: "settledOutcome", outcome: Math.floor(Number(market.id) / 10) }).catch(() => null);
+    return r?.settleFraction !== undefined ? Number(r.settleFraction) : null;
   }
 
   async getHistory(market: Market, startTs: number, endTs: number): Promise<PricePoint[]> {

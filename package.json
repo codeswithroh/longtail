@@ -10,7 +10,9 @@
     "backtest": "node packages/engine/src/cli/backtest.ts",
     "web": "pnpm --filter web dev",
     "web:build": "pnpm --filter web build",
-    "rewards": "node packages/engine/src/cli/rewards.ts"
+    "rewards": "node packages/engine/src/cli/rewards.ts",
+    "universe": "node packages/engine/src/cli/universe.ts",
+    "cycle": "node packages/engine/src/cli/cycle.ts"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

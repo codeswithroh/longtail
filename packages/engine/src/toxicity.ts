@@ -64,6 +64,20 @@ export class ToxicityTracker {
     return Math.max(this.byMarket.get(marketId) ?? 0, 0.5 * (this.byCategory.get(category) ?? 0));
   }
 
+  toJSON() {
+    return { pending: this.pending, byMarket: [...this.byMarket], byCategory: [...this.byCategory] };
+  }
+
+  static fromJSON(j: { pending: Pending[]; byMarket: [string, number][]; byCategory: [string, number][] } | undefined): ToxicityTracker {
+    const t = new ToxicityTracker();
+    if (j) {
+      t.pending = j.pending;
+      t.byMarket = new Map(j.byMarket);
+      t.byCategory = new Map(j.byCategory);
+    }
+    return t;
+  }
+
   snapshot() {
     return { markets: Object.fromEntries(this.byMarket), categories: Object.fromEntries(this.byCategory), pending: this.pending.length };
   }

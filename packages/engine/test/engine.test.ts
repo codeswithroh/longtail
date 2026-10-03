@@ -216,3 +216,14 @@ describe("risk sizing", () => {
     expect(d.allowAsk).toBe(false);
   });
 });
+
+describe("live paper-trading lessons", () => {
+  // These three markets caused all of the first 45h of live paper losses.
+  it("excludes reality TV, mention markets and company-decided outcomes", () => {
+    expect(infoRegime(market({ question: "Will Drew Campbell come in third-place on Big Brother season 28?", category: "Culture" }))).toBe("live");
+    expect(infoRegime(market({ question: 'Will Trump say "Ice Cream" in October?', category: "Politics" }))).toBe("live");
+    const codex = market({ question: "Will there be exactly 2 Codex weekly usage limit resets in the week of Oct 5?", category: "AI" });
+    expect(assessRules(codex).score).toBeGreaterThan(DEFAULT_RISK.maxRuleScore);
+    expect(infoRegime(market({ question: "Will Claude go down 8-10 times in October?", category: "AI" }))).toBe("live");
+  });
+});

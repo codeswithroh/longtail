@@ -32,6 +32,8 @@ const INSIDER = [
   /\bwins? (the )?([\w'\- ]+ )?(award|oscar|grammy|emmy|nobel|medal|prize|ballon d'or|mvp|trophy)\b/i,
   /\b(named|selected|chosen) (as )?(the )?([\w ]+ )?(person of the year|ceo|coach|host|pick)\b/i,
   /\b(acquire|merger|lawsuit|settle)s?\b/i,
+  // A company decides these outright (limit resets, launches, pricing, product changes).
+  /\b(reset|resets|rate limit|usage limit|price (cut|increase)|discontinue|rebrand)\b/i,
 ];
 
 // Settled mechanically from a public price or official statistic.
@@ -50,6 +52,12 @@ export type InfoRegime = "live" | "slow";
 const LIVE_CATEGORIES = /\b(sports|nfl|cfb|ncaa|nhl|nba|mlb|wnba|mls|soccer|football|basketball|baseball|hockey|ucl|uel|uecl|epl|la liga|serie a|bundesliga|ligue 1|tennis|atp|wta|golf|pga|f1|formula 1|nascar|mma|ufc|boxing|cricket|ipl|esports|vct|valorant|val|lol|league of legends|cs2|counter-strike|dota|ppa|pickleball|weather|temperature|up or down|bitcoin|ethereum|solana|xrp|dogecoin|bnb|hype)\b/i;
 const LIVE_QUESTION = [
   /\bup or down\b/i,
+  // Mention markets settle on live speech or posts; someone watching the stream always wins.
+  /\b(say|says|said|mention|mentions|tweet|tweets|post|posts)\b/i,
+  // Reality TV: producers and live-feed viewers know the outcome before the market.
+  /\b(big brother|survivor|bachelor|bachelorette|love island|the voice|american idol|dancing with the stars|masterchef|traitors|contestant|evicted|eliminated|finale)\b/i,
+  // Outages and uptime settle from public status pages in real time.
+  /\b(go(es)? down|outage|downtime|status page)\b/i,
   /\b(highest|lowest) temperature\b/i,
   /\b(handicap|spread|over\/under|o\/u|total (points|goals|games|rounds|kills|maps))\b/i,
   /\b(map|game|set|half|quarter|inning|round) \d\b/i,
@@ -80,7 +88,8 @@ export function assessRules(m: Market): RuleAssessment {
   }
   const insider = INSIDER.filter((r) => r.test(m.question));
   if (insider.length) {
-    score += 0.35;
+    // Disqualifying on its own: no spread compensates for trading against the decider.
+    score += 0.5;
     reasons.push("outcome knowable or decidable by insiders");
   }
   const objective = OBJECTIVE_SOURCE.test(`${m.resolutionSource} ${m.rules}`);

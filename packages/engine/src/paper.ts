@@ -96,6 +96,17 @@ export class Portfolio {
     p.settled = true;
   }
 
+  toJSON() {
+    return { positions: [...this.positions.values()], realizedUsd: this.realizedUsd };
+  }
+
+  static fromJSON(j: { positions: PositionState[]; realizedUsd: number } | undefined): Portfolio {
+    const pf = new Portfolio();
+    for (const p of j?.positions ?? []) pf.positions.set(p.marketId, p);
+    pf.realizedUsd = j?.realizedUsd ?? 0;
+    return pf;
+  }
+
   exposureUsd(fairOf: (id: string) => number): { gross: number; byCategory: Map<string, number> } {
     let gross = 0;
     const byCategory = new Map<string, number>();

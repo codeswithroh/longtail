@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 import { ArmChart, CalibrationChart, PnlHistogram } from "@/components/charts";
 import { Card, Empty, Freshness, PageHeader, Pill, Stat } from "@/components/ui";
-import { readData, type ArmSummary, type Backtest } from "@/lib/data";
+import { readData, type ArmSummary, type Backtest, type LlmEval } from "@/lib/data";
 import { int, pct, tone, usd } from "@/lib/format";
 
 const ARMS: { key: keyof Backtest["summary"]; label: string; blurb: string }[] = [
@@ -97,6 +97,65 @@ function WalkForward({ w }: { w: NonNullable<Backtest["walkForward"]> }) {
   );
 }
 
+function AgentEval({ e }: { e: LlmEval }) {
+  const f = e.forecast;
+  const rows = [
+    { k: "Market price", v: f.brierMarket },
+    { k: "Calibrated price", v: f.brierCalibrated },
+    { k: "Claude alone", v: f.brierLlm },
+    { k: "Claude + calibrated", v: f.brierBlend },
+  ];
+  const best = Math.min(...rows.map((r) => r.v));
+  const examples = e.rows.filter((r) => r.flagged).sort((a, b) => a.pnlUsd - b.pnlUsd).slice(0, 4);
+  return (
+    <div className="grid gap-4 lg:grid-cols-5">
+      <Card title="The AI agent, out of sample" note={`${e.model} · ${int(e.markets)} markets resolved after ${e.cutoff} · forecasts 7 days out, no web search`} className="lg:col-span-3">
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.06em] text-muted">Triage: markets the agent refused</div>
+            <div className="mt-2 grid grid-cols-2 gap-4">
+              <Stat label={`flagged (${int(e.triage.flagged.markets)})`} value={usd(e.triage.flagged.pnlUsd, { signed: true })} tone={tone(e.triage.flagged.pnlUsd)} sub="replay PnL it avoided" />
+              <Stat label={`kept (${int(e.triage.kept.markets)})`} value={usd(e.triage.kept.pnlUsd, { signed: true })} tone={tone(e.triage.kept.pnlUsd)} sub="replay PnL it traded" />
+            </div>
+            <p className="mt-3 text-[12px] leading-relaxed text-muted">
+              Refuses a market when insider risk &gt; {e.triage.thresholds.maxInsiderRisk} or resolution clarity &lt; {e.triage.thresholds.minResolutionClarity}.
+            </p>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.06em] text-muted">Forecast skill (Brier, lower is better)</div>
+            <table className="mt-2 w-full text-[12px]">
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.k} className="border-t border-border">
+                    <td className="py-1.5">{r.k}</td>
+                    <td className={`num py-1.5 text-right ${r.v === best ? "text-gain" : "text-text"}`}>{r.v.toFixed(4)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p className="mt-4 text-[11px] leading-relaxed text-muted">Small sample; treat as early evidence. Markets are restricted to those resolving after the model&rsquo;s training data so it cannot know the outcome.</p>
+      </Card>
+      <Card title="What it refused, and why" className="lg:col-span-2">
+        <ul className="space-y-3">
+          {examples.map((r) => (
+            <li key={r.id} className="text-[12px]">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="line-clamp-1">{r.question}</span>
+                <span className={`num shrink-0 ${tone(r.pnlUsd)}`}>{usd(r.pnlUsd, { signed: true })}</span>
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted">
+                insider {r.insider_risk.toFixed(2)} · clarity {r.resolution_clarity.toFixed(2)} — <span className="line-clamp-2 inline">{r.rationale}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
 export default async function BacktestPage() {
   await connection();
   const b = readData<Backtest>("backtest.json");
@@ -111,6 +170,7 @@ export default async function BacktestPage() {
     );
   }
   const d = b.data;
+  const ai = readData<LlmEval>("llm-eval.json")?.data ?? null;
   const traded = d.markets.filter((m) => m.fills > 0);
   const reasons = new Map<string, number>();
   for (const m of d.markets) for (const [k, v] of Object.entries(m.pulledReasons)) reasons.set(k, (reasons.get(k) ?? 0) + v);
@@ -137,6 +197,7 @@ export default async function BacktestPage() {
       />
 
       {d.walkForward && <WalkForward w={d.walkForward} />}
+      {ai && <AgentEval e={ai} />}
 
       <h2 className="pt-2 text-[12px] font-medium uppercase tracking-[0.06em] text-muted">Full sample, first-generation risk engine</h2>
       <div className="grid gap-4 lg:grid-cols-3">

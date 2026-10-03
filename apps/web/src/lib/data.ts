@@ -146,3 +146,13 @@ export interface PaperState {
   };
   markets: PaperMarket[];
 }
+
+export interface LlmEval {
+  generatedAt: string;
+  model: string;
+  cutoff: string;
+  markets: number;
+  forecast: { brierMarket: number; brierCalibrated: number; brierLlm: number; brierBlend: number };
+  triage: { thresholds: { maxInsiderRisk: number; minResolutionClarity: number }; flagged: { markets: number; pnlUsd: number }; kept: { markets: number; pnlUsd: number } };
+  rows: { id: string; question: string; outcome: number; price: number; probability: number; insider_risk: number; resolution_clarity: number; rationale: string; flagged: boolean; pnlUsd: number }[];
+}

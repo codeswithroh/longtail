@@ -67,6 +67,8 @@ export interface Venue {
   getBook(market: Market): Promise<Book>;
   getTrades(market: Market, sinceTs?: number): Promise<Trade[]>;
   getHistory(market: Market, startTs: number, endTs: number): Promise<PricePoint[]>;
+  /** YES settlement value once resolved, otherwise null. */
+  getResolution(market: Market): Promise<number | null>;
 }
 
 export const mid = (b: Book): number | null => {

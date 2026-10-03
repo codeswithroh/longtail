@@ -127,6 +127,7 @@ export class Polymarket implements Venue {
 
   /** Taker prints for a market, newest pages first, translated to YES prices. */
   async getTrades(market: Market, sinceTs = 0, maxTrades = 500): Promise<Trade[]> {
+    if (!noTokens.has(market.id)) await this.getByConditionIds([market.groupId]).catch(() => []);
     const no = noTokens.get(market.id);
     const trades: Trade[] = [];
     for (let offset = 0; offset < maxTrades; offset += 500) {
@@ -216,6 +217,32 @@ export class Polymarket implements Venue {
       }
     }
     return out;
+  }
+
+  /** Open markets by conditionId, 40 per request (Gamma takes a repeated parameter). */
+  async getByConditionIds(ids: string[], concurrency = 4): Promise<Market[]> {
+    const chunks: string[][] = [];
+    for (let i = 0; i < ids.length; i += 40) chunks.push(ids.slice(i, i + 40));
+    const pages = await mapLimit(chunks, concurrency, (c) =>
+      getJson<GammaMarket[]>(`${GAMMA}/markets?limit=100&include_tag=true&${c.map((id) => `condition_ids=${id}`).join("&")}`, { retries: 3 }).catch(() => [] as GammaMarket[]),
+    );
+    const out: Market[] = [];
+    for (const g of pages.flat()) {
+      const m = toMarket(g);
+      if (!m || !m.acceptingOrders) continue;
+      const no = parse<string[]>(g.clobTokenIds, [])[1];
+      if (no) noTokens.set(m.id, no);
+      out.push(m);
+    }
+    return out;
+  }
+
+  /** 1 / 0 once the market has resolved on-chain, otherwise null. */
+  async getResolution(market: Market): Promise<number | null> {
+    const [g] = await getJson<GammaMarket[]>(`${GAMMA}/markets?condition_ids=${market.groupId}`);
+    if (!g || g.umaResolutionStatus !== "resolved") return null;
+    const yes = parse<string[]>(g.outcomePrices, []).map(Number)[0];
+    return yes === 0 || yes === 1 ? yes : null;
   }
 
   async getBooks(markets: Market[], concurrency = 8): Promise<(Book | null)[]> {
