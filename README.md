@@ -6,6 +6,16 @@
 
 **Vault on HyperEVM testnet (chain 998):** `LongtailVault` [`0x1c4DA07db8A2b1D23dBecDE9aAD3707dfc733AfC`](contracts/broadcast/Deploy.s.sol/998/run-latest.json) · test asset tUSDC `0x619E00476F63af724e478aDa07c07530795943be` · keeper `0x66B3A4B691699d0fbA15CefF3B7f11c71f3C9667`. Every hour the keeper posts `reportNav`, pinned to the hash of the published paper state.
 
+### Try it (2 minutes, no install)
+
+1. Open **[/app/earn](https://longtail-rosy.vercel.app/app/earn)** → **Start** → **Demo wallet** (or connect MetaMask/Rabby; the app adds HyperEVM testnet).
+2. **Get test funds**: the faucet sends gas and 1,000 tUSDC.
+3. **Deposit**, and watch your ltUSDC shares and the vault totals update. **Withdraw** any time.
+4. Open **[/app/analyze](https://longtail-rosy.vercel.app/app/analyze)** and paste any Polymarket link. The live engine prices it, Claude researches it, and the risk engine decides whether to quote it and at what prices.
+5. **[/app/markets](https://longtail-rosy.vercel.app/app/markets)** shows every market the engine is watching right now. Tap a card to see why it is quoted or refused.
+
+Everything is test tokens on HyperEVM testnet; no real funds are involved.
+
 Creating a prediction market is now nearly free. Making it tradeable is not. Longtail is a liquidity network that prices and quotes the thousands of thin markets nobody makes, with a risk engine built to survive the adverse selection that makes long-tail market making lose money.
 
 ## The problem (measured, not asserted)
