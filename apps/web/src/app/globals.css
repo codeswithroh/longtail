@@ -162,3 +162,23 @@ html {
     animation: none;
   }
 }
+
+/* Tab-switch progress bar: grows quickly, then waits for the page. */
+.nav-progress {
+  transform-origin: left;
+  animation: nav-progress 1.2s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+@keyframes nav-progress {
+  from {
+    transform: scaleX(0.05);
+  }
+  to {
+    transform: scaleX(0.85);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress {
+    animation: none;
+    transform: scaleX(0.6);
+  }
+}

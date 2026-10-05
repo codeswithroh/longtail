@@ -1,7 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { connection } from "next/server";
-import { PageTitle, SideNav, TabBar } from "@/components/app/app-nav";
+import { NavProgress, NavProvider, PageTitle, SideNav, TabBar } from "@/components/app/app-nav";
 import { ConnectButton } from "@/components/app/connect";
 import { WalletProvider } from "@/components/app/wallet";
 import { Mark } from "@/components/ui";
@@ -15,6 +15,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const fresh = s ? Date.now() - s.updatedAt < 12 * 60_000 : false;
   return (
     <WalletProvider>
+    <NavProvider>
     <div className="flex min-h-dvh">
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col border-r border-border px-3 py-4 md:flex">
         <Link href="/" className="mb-7 flex items-center gap-2 px-3">
@@ -50,11 +51,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </span>
             <ConnectButton />
           </div>
+          <NavProgress />
         </header>
         <main className="mx-auto max-w-[1320px] px-4 pb-28 pt-5 md:px-8 md:pb-10 md:pt-6">{children}</main>
       </div>
       <TabBar />
     </div>
+    </NavProvider>
     </WalletProvider>
   );
 }
