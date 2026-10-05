@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { memo } from "./memo";
 
 // Dev: the engine writes JSON to <repo>/data. Production: the scheduled engine publishes the
 // same files to the repo's live-state branch, and LONGTAIL_DATA_URL points at its raw URL.
@@ -11,7 +12,12 @@ const SNAPSHOT_FILES = new Set(["census.json", "backtest.json", "llm-eval.json",
 // A slow upstream must degrade one panel, not hang the whole page.
 const FETCH_TIMEOUT_MS = 6_000;
 
-export async function readData<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
+/** Upstream state changes every few minutes; 30s of server cache keeps every page fast. */
+export function readData<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
+  return memo(`data:${file}`, 30_000, () => readDataUncached<T>(file));
+}
+
+async function readDataUncached<T>(file: string): Promise<{ data: T; updatedAt: Date } | null> {
   const base = SNAPSHOT_URL && SNAPSHOT_FILES.has(file) ? SNAPSHOT_URL : DATA_URL;
   if (base) {
     try {
@@ -191,7 +197,11 @@ export interface TimelineRow {
 }
 
 /** Engine timeline (JSON lines), downsampled to at most `max` points. */
-export async function readTimeline(max = 300): Promise<TimelineRow[]> {
+export function readTimeline(max = 300): Promise<TimelineRow[]> {
+  return memo(`timeline:${max}`, 30_000, () => readTimelineUncached(max));
+}
+
+async function readTimelineUncached(max: number): Promise<TimelineRow[]> {
   const url = process.env.LONGTAIL_DATA_URL;
   let text = "";
   try {

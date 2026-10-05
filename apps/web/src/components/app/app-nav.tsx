@@ -25,6 +25,7 @@ export function SideNav() {
           <Link
             key={href}
             href={href}
+            prefetch
             aria-current={active ? "page" : undefined}
             className={clsx(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] transition-colors duration-150",
@@ -48,7 +49,7 @@ export function TabBar() {
       {APP_NAV.map(({ href, label, icon: Icon }) => {
         const active = isActive(path, href);
         return (
-          <Link key={href} href={href} aria-current={active ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 py-2.5 text-[11px]", active ? "text-accent" : "text-muted")}>
+          <Link key={href} href={href} prefetch aria-current={active ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 py-2.5 text-[11px]", active ? "text-accent" : "text-muted")}>
             <Icon size={20} aria-hidden />
             {label}
           </Link>

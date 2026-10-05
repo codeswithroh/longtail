@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // The engine packages ship TypeScript source; compile them with the app.
   transpilePackages: ["@longtail/core", "@longtail/engine"],
+  // Keep visited and prefetched tabs in the client cache so switching back is instant.
+  experimental: { staleTimes: { dynamic: 60, static: 180 } },
   // The dashboard moved under /app when the landing page took over /.
   async redirects() {
     return [

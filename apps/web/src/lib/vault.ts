@@ -1,4 +1,6 @@
 // Live reads of the LongtailVault on HyperEVM testnet, via plain eth_call (no client library).
+import { memo } from "./memo";
+
 export const VAULT = {
   chainId: 998,
   network: "HyperEVM testnet",
@@ -43,7 +45,12 @@ async function call(data: string): Promise<string> {
   return j.result;
 }
 
-export async function readVault(): Promise<VaultState | null> {
+/** Short cache: the Earn page refreshes after a deposit and should see it within seconds. */
+export function readVault(): Promise<VaultState | null> {
+  return memo("vault", 8_000, readVaultUncached);
+}
+
+async function readVaultUncached(): Promise<VaultState | null> {
   try {
     const keys = Object.keys(SEL) as (keyof typeof SEL)[];
     const raw = Object.fromEntries(await Promise.all(keys.map(async (k) => [k, await call(SEL[k])] as const))) as Record<keyof typeof SEL, string>;
