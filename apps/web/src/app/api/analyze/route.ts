@@ -121,11 +121,17 @@ export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   try {
     let markets: Market[] = [];
+    let closed = false;
     for (const slug of slugsFrom(body.q)) {
-      markets = await pm.findBySlug(slug);
+      const found = await pm.findBySlug(slug);
+      closed ||= !!found.closed;
+      markets = found;
       if (markets.length) break;
     }
-    if (!markets.length) return Response.json({ error: "No open Polymarket market found for that link" }, { status: 404 });
+    if (!markets.length) {
+      const error = closed ? "That market has closed, so there's nothing left to quote. Try one that's still trading." : "No Polymarket market found for that link";
+      return Response.json({ error }, { status: 404 });
+    }
     const chosen = body.marketId ? markets.find((m) => m.id === body.marketId) : markets.length === 1 ? markets[0] : undefined;
     if (!chosen) {
       return Response.json({ choices: markets.slice(0, 30).map((m) => ({ id: m.id, question: m.question })) });

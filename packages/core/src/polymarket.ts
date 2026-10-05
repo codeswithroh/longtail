@@ -237,8 +237,11 @@ export class Polymarket implements Venue {
     return out;
   }
 
-  /** Open markets for a market slug, or every open market in an event slug (polymarket.com URLs carry either). */
-  async findBySlug(slug: string): Promise<Market[]> {
+  /**
+   * Open markets for a market slug, or every open market in an event slug (polymarket.com URLs carry
+   * either). `closed` is set when the slug exists but nothing in it is still trading.
+   */
+  async findBySlug(slug: string): Promise<Market[] & { closed?: boolean }> {
     const keep = (gs: GammaMarket[]) => {
       const out: Market[] = [];
       for (const g of gs) {
@@ -251,9 +254,9 @@ export class Polymarket implements Venue {
       return out;
     };
     const direct = await getJson<GammaMarket[]>(`${GAMMA}/markets?include_tag=true&slug=${encodeURIComponent(slug)}`).catch(() => [] as GammaMarket[]);
-    if (direct.length) return keep(direct);
-    const events = await getJson<{ markets?: GammaMarket[] }[]>(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`).catch(() => []);
-    return keep(events.flatMap((e) => e.markets ?? []));
+    const events = direct.length ? [] : await getJson<{ markets?: GammaMarket[] }[]>(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`).catch(() => []);
+    const found = direct.length ? direct : events.flatMap((e) => e.markets ?? []);
+    return Object.assign(keep(found), { closed: found.length > 0 && keep(found).length === 0 });
   }
 
   /** 1 / 0 once the market has resolved on-chain, otherwise null. */
