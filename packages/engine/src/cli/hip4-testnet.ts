@@ -59,7 +59,8 @@ for (;;) {
   }
   cycles++;
   log.push({ t: now, placed, cancelled });
-  const fills = dryRun ? [] : await exec.fills(startedAt).catch(() => []);
+  // Each CI cycle is a fresh process, so report every fill since the keeper first traded, not since this run.
+  const fills = dryRun ? [] : await exec.fills(0).catch(() => []);
   const bal = dryRun ? balance : await exec.usdcBalance(true).catch(() => balance);
   writeFileSync(
     "data/hip4-testnet.json",

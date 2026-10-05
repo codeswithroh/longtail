@@ -141,8 +141,8 @@ export default async function Overview() {
                 <div className="text-muted">testnet USDC</div>
               </div>
               <div>
-                <div className="num text-[18px]">{hip4?.data.cycles ?? 0}</div>
-                <div className="text-muted">cycles</div>
+                <div className="num text-[18px]">{hip4?.data.fills.length ?? 0}</div>
+                <div className="text-muted">testnet fills</div>
               </div>
             </div>
           </div>
