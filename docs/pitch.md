@@ -20,16 +20,17 @@ Working notes for the presentation video and the submission. The numbers come fr
    - Agent eval on post-cutoff markets: markets it refused lost −$237, markets it kept made +$254.
    - Be honest that run 1 lost $142, and say what changed because of it.
 6. **It's live (25s).**
-   - Live page: ~136 markets quoted every 5 min, with AI triage reasons.
-   - Vault page: the HyperEVM testnet vault, read live from chain, with hourly NAV reports hash-pinned to the published state.
-   - HIP-4: two-sided quotes need no inventory and can't be liquidated.
+   - Run 2 (since Oct 3): ~115 markets quoted every 5 min, 59 fills, +$87 trading PnL, ~$573 estimated rewards.
+   - Hyperliquid HIP-4 testnet: real resting orders, 6 real fills on both sides. Two-sided quotes need no inventory and can't be liquidated.
+   - HyperEVM testnet vault: 50+ hourly NAV reports on-chain, each pinned to the hash of the published state.
+   - Anyone can try it: demo wallet → faucet → deposit/withdraw, and Analyze runs the engine and Claude on any Polymarket link.
 7. **Ask / what's next (10s).**
    - Real-capital pilot with a capped vault.
    - Venue partnerships: liquidity-as-a-service for market creators.
 
 ## Demo recording shot list (dashboard)
 
-Landing `/` (hero, problem, evidence) → **Launch app** → `/app` Overview (KPIs, run chart, AI triage ring) → `/app/markets` (open a card the AI refused, show its reasoning) → `/app/research` (walk-forward bars, calibration, triage split) → `/app/vault` (capital flow, NAV reports, live HIP-4 quotes). Record at 1440×900; show one phone-width pass of the Markets feed.
+Landing `/` (hero, problem, evidence) → **Launch app** → `/app` Overview (KPIs, run chart, AI triage ring) → `/app/markets` (open a card the AI refused, show its reasoning) → `/app/research` (walk-forward bars, calibration, triage split) → `/app/analyze` (paste a Polymarket link, show the verdict and Claude's triage) → `/app/earn` (demo wallet → get test funds → deposit → withdraw; capital flow, NAV reports, live HIP-4 quotes). Record at 1440×900; show one phone-width pass of the Markets feed.
 
 ## Submission: outline and open questions (fill in yourself)
 
