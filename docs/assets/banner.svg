@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-label="Longtail: liquidity for the long tail of prediction markets">
+  <defs>
+    <radialGradient id="glow" cx="50%" cy="0%" r="70%">
+      <stop offset="0%" stop-color="#2cb0c8" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#2cb0c8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="head" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#c9d6da" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#8a9ca1" stop-opacity="0.25"/>
+    </linearGradient>
+    <linearGradient id="tail" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2cb0c8"/>
+      <stop offset="100%" stop-color="#038093" stop-opacity="0.5"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="300" rx="18" fill="#070e10"/>
+  <rect width="1200" height="300" rx="18" fill="url(#glow)"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="18" fill="none" stroke="#1d2527"/>
+
+  <!-- power-law bars: a few headline markets tower, the long tail is lit by Longtail -->
+  <g transform="translate(720 70)">
+    <rect x="0" y="0" width="12" height="170" rx="2" fill="url(#head)"/>
+    <rect x="18" y="78" width="12" height="92" rx="2" fill="url(#head)"/>
+    <rect x="36" y="111" width="12" height="59" rx="2" fill="url(#head)"/>
+    <rect x="54" y="128" width="12" height="42" rx="2" fill="url(#head)"/>
+    <rect x="72" y="138" width="12" height="32" rx="2" fill="#2a3639"/>
+    <rect x="90" y="144" width="12" height="26" rx="2" fill="#2a3639"/>
+    <g fill="url(#tail)">
+      <rect x="72" y="124" width="12" height="12" rx="2"/>
+      <rect x="90" y="128" width="12" height="14" rx="2"/>
+      <rect x="108" y="134" width="12" height="16" rx="2"/><rect x="108" y="152" width="12" height="18" rx="2" fill="#2a3639"/>
+      <rect x="126" y="138" width="12" height="14" rx="2"/><rect x="126" y="154" width="12" height="16" rx="2" fill="#2a3639"/>
+      <rect x="144" y="140" width="12" height="16" rx="2"/><rect x="144" y="157" width="12" height="13" rx="2" fill="#2a3639"/>
+      <rect x="162" y="142" width="12" height="14" rx="2"/><rect x="162" y="158" width="12" height="12" rx="2" fill="#2a3639"/>
+      <rect x="180" y="143" width="12" height="16" rx="2"/><rect x="180" y="160" width="12" height="10" rx="2" fill="#2a3639"/>
+      <rect x="198" y="146" width="12" height="13" rx="2"/><rect x="198" y="161" width="12" height="9" rx="2" fill="#2a3639"/>
+      <rect x="216" y="146" width="12" height="15" rx="2"/><rect x="216" y="162" width="12" height="8" rx="2" fill="#2a3639"/>
+      <rect x="234" y="148" width="12" height="13" rx="2"/><rect x="234" y="162" width="12" height="8" rx="2" fill="#2a3639"/>
+      <rect x="252" y="148" width="12" height="14" rx="2"/><rect x="252" y="163" width="12" height="7" rx="2" fill="#2a3639"/>
+      <rect x="270" y="149" width="12" height="13" rx="2"/><rect x="270" y="163" width="12" height="7" rx="2" fill="#2a3639"/>
+      <rect x="288" y="149" width="12" height="14" rx="2"/><rect x="288" y="164" width="12" height="6" rx="2" fill="#2a3639"/>
+      <rect x="306" y="150" width="12" height="13" rx="2"/><rect x="306" y="164" width="12" height="6" rx="2" fill="#2a3639"/>
+      <rect x="324" y="150" width="12" height="13" rx="2"/><rect x="324" y="164" width="12" height="6" rx="2" fill="#2a3639"/>
+      <rect x="342" y="151" width="12" height="12" rx="2"/><rect x="342" y="164" width="12" height="6" rx="2" fill="#2a3639"/>
+      <rect x="360" y="151" width="12" height="13" rx="2"/><rect x="360" y="165" width="12" height="5" rx="2" fill="#2a3639"/>
+      <rect x="378" y="152" width="12" height="12" rx="2"/><rect x="378" y="165" width="12" height="5" rx="2" fill="#2a3639"/>
+      <rect x="396" y="152" width="12" height="12" rx="2"/><rect x="396" y="165" width="12" height="5" rx="2" fill="#2a3639"/>
+    </g>
+    <line x1="0" x2="410" y1="171" y2="171" stroke="#1d2527"/>
+  </g>
+
+  <text x="80" y="140" fill="#e5f5f9" font-family="IBM Plex Sans, Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="72" font-weight="600" letter-spacing="-1.5">Longtail</text>
+  <text x="82" y="190" fill="#8a9ca1" font-family="IBM Plex Sans, Inter, Segoe UI, Helvetica, Arial, sans-serif" font-size="24">Every market deserves a <tspan fill="#2cb0c8">market maker.</tspan></text>
+  <text x="82" y="232" fill="#5f7277" font-family="IBM Plex Mono, Menlo, Consolas, monospace" font-size="15">AI-agent liquidity for the long tail of prediction markets</text>
+</svg>

@@ -39,6 +39,8 @@ interface SavedState {
   portfolio: ReturnType<Portfolio["toJSON"]>;
   toxicity: ReturnType<ToxicityTracker["toJSON"]>;
   markouts: { horizonMs: number; markout: number; ts: number }[];
+  /** Rewards accrued by markets that have since left the universe. */
+  retiredRewardsUsd?: number;
 }
 
 export interface EngineOptions {
@@ -73,6 +75,7 @@ export class LiveEngine {
   pf = new Portfolio();
   tox = new ToxicityTracker();
   markouts: SavedState["markouts"] = [];
+  retiredRewardsUsd = 0;
 
   constructor(opts: EngineOptions = {}) {
     this.dir = opts.dataDir ?? "data";
@@ -117,6 +120,7 @@ export class LiveEngine {
     this.pf = Portfolio.fromJSON(s.portfolio);
     this.tox = ToxicityTracker.fromJSON(s.toxicity);
     this.markouts = s.markouts ?? [];
+    this.retiredRewardsUsd = s.retiredRewardsUsd ?? this.backfillRetiredRewards();
     return true;
   }
 
@@ -136,8 +140,34 @@ export class LiveEngine {
       portfolio: this.pf.toJSON(),
       toxicity: this.tox.toJSON(),
       markouts: this.markouts.slice(-2000),
+      retiredRewardsUsd: this.retiredRewardsUsd,
     };
     writeFileSync(`${this.dir}/engine-state.json`, JSON.stringify(s));
+  }
+
+  /**
+   * States saved before retired rewards were tracked lost them whenever the daily universe refresh
+   * dropped a market. Each loss shows up in the timeline as a fall in cumulative rewards between
+   * consecutive cycles: add those falls back, and correct the timeline so the chart is continuous.
+   * Runs once; afterwards retiredRewardsUsd is saved with the state.
+   */
+  private backfillRetiredRewards(): number {
+    const p = `${this.dir}/timeline.jsonl`;
+    if (!existsSync(p)) return 0;
+    let lost = 0;
+    let prev: number | null = null;
+    const rows = readFileSync(p, "utf8")
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => {
+        const r = JSON.parse(line) as { rewardsUsd: number };
+        const raw = r.rewardsUsd;
+        if (prev !== null && raw < prev) lost += prev - raw;
+        prev = raw;
+        return JSON.stringify({ ...r, rewardsUsd: +(raw + lost).toFixed(2) });
+      });
+    if (lost > 0) writeFileSync(p, rows.join("\n") + "\n");
+    return lost;
   }
 
   /** Add markets from a universe list; never drops markets that still hold a position. */
@@ -164,7 +194,10 @@ export class LiveEngine {
     const keep = new Set(markets.map((m) => m.id));
     for (const [id, s] of this.states) {
       const held = (this.pf.positions.get(id)?.shares ?? 0) !== 0;
-      if (!keep.has(id) && !held && !s.settled) this.states.delete(id);
+      if (!keep.has(id) && !held && !s.settled) {
+        this.retiredRewardsUsd += s.rewardsUsd; // keep what it earned in the run total
+        this.states.delete(id);
+      }
     }
   }
 
@@ -314,7 +347,7 @@ export class LiveEngine {
       edgeUsd: [...this.pf.positions.values()].reduce((a, p) => a + p.edgeUsd, 0),
       realizedUsd: this.pf.realizedUsd,
       pnlUsd: unreal + this.pf.realizedUsd,
-      rewardsUsd: [...this.states.values()].reduce((a, s) => a + s.rewardsUsd, 0),
+      rewardsUsd: this.retiredRewardsUsd + [...this.states.values()].reduce((a, s) => a + s.rewardsUsd, 0),
       rewardsDailyAvailableUsd: live.reduce((a, r) => a + (r.rewards?.daily ?? 0), 0),
       rewardsDailyRunRateUsd: live.reduce((a, r) => a + (r.quote && r.rewards?.share ? r.rewards.daily * r.rewards.share : 0), 0),
       grossExposureUsd: exp.gross,
