@@ -1,0 +1,470 @@
+{
+  "generatedAt": "2026-10-01T12:03:04.669Z",
+  "rewards": {
+    "all": {
+      "markets": 17989,
+      "dailyUsd": 183602,
+      "medianDailyUsd": 3
+    },
+    "addressable": {
+      "markets": 7498,
+      "dailyUsd": 87766,
+      "medianDailyUsd": 3
+    },
+    "addressableLongTail": {
+      "markets": 6924,
+      "dailyUsd": 50158,
+      "medianDailyUsd": 3
+    },
+    "zeroVolumeAddressable": {
+      "markets": 3176,
+      "dailyUsd": 13869,
+      "medianDailyUsd": 2
+    }
+  },
+  "charts": {
+    "lorenz": [
+      {
+        "marketsPct": 0,
+        "volumePct": 0
+      },
+      {
+        "marketsPct": 2,
+        "volumePct": 96.53
+      },
+      {
+        "marketsPct": 4,
+        "volumePct": 99.09
+      },
+      {
+        "marketsPct": 6,
+        "volumePct": 99.79
+      },
+      {
+        "marketsPct": 8,
+        "volumePct": 99.99
+      },
+      {
+        "marketsPct": 10,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 12,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 14,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 16,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 18,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 20,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 22,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 24,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 26,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 28,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 30,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 32,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 34,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 36,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 38,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 40,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 42,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 44,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 46,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 48,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 50,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 52,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 54,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 56,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 58,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 60,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 62,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 64,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 66,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 68,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 70,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 72,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 74,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 76,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 78,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 80,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 82,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 84,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 86,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 88,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 90,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 92,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 94,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 96,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 98,
+        "volumePct": 100
+      },
+      {
+        "marketsPct": 100,
+        "volumePct": 100
+      }
+    ],
+    "rankBuckets": [
+      {
+        "label": "top 0.1%",
+        "markets": 206,
+        "volumeShare": 0.592260787036584
+      },
+      {
+        "label": "0.1–1%",
+        "markets": 1857,
+        "volumeShare": 0.3281239599213501
+      },
+      {
+        "label": "1–10%",
+        "markets": 18571,
+        "volumeShare": 0.07961525304208042
+      },
+      {
+        "label": "bottom 90%",
+        "markets": 185715,
+        "volumeShare": 0
+      }
+    ],
+    "spreadHist": {
+      "live": [
+        {
+          "label": "0–1¢",
+          "share": 0.04276688630385857
+        },
+        {
+          "label": "1–2¢",
+          "share": 0.030017082892703165
+        },
+        {
+          "label": "2–5¢",
+          "share": 0.05020201198514059
+        },
+        {
+          "label": "5–10¢",
+          "share": 0.06447571788822908
+        },
+        {
+          "label": "10–20¢",
+          "share": 0.0329076168008894
+        },
+        {
+          "label": "20–50¢",
+          "share": 0.04840695246617316
+        },
+        {
+          "label": "50–100¢",
+          "share": 0.5997125735513436
+        },
+        {
+          "label": "one-sided",
+          "share": 0.13151115811166247
+        }
+      ],
+      "slow": [
+        {
+          "label": "0–1¢",
+          "share": 0.3377516625671859
+        },
+        {
+          "label": "1–2¢",
+          "share": 0.11569645622665574
+        },
+        {
+          "label": "2–5¢",
+          "share": 0.1734080349822356
+        },
+        {
+          "label": "5–10¢",
+          "share": 0.11423886307734353
+        },
+        {
+          "label": "10–20¢",
+          "share": 0.05894142297531202
+        },
+        {
+          "label": "20–50¢",
+          "share": 0.05005921472169081
+        },
+        {
+          "label": "50–100¢",
+          "share": 0.06436184749931675
+        },
+        {
+          "label": "one-sided",
+          "share": 0.08554249795025963
+        }
+      ]
+    }
+  },
+  "polymarket": {
+    "all": {
+      "markets": 206349,
+      "volume24hUsd": 32871795,
+      "top1PctShare": 0.9203847469579308,
+      "top10PctShare": 0.9999999999999968,
+      "under1kDaily": 0.9882722959646036,
+      "zeroDaily": 0.9144749913980683,
+      "twoSidedShare": 0.8733795656872579,
+      "spreadMedian": 0.94,
+      "spreadP75": 0.96,
+      "spreadAtLeast5c": 0.8027477375000693,
+      "liquidityMedianUsd": 11
+    },
+    "live": {
+      "markets": 184395,
+      "volume24hUsd": 16024129,
+      "top1PctShare": 0.9596894875850414,
+      "top10PctShare": 0.9999999999999949,
+      "under1kDaily": 0.9931831123403563,
+      "zeroDaily": 0.951902166544646,
+      "twoSidedShare": 0.8684888418883375,
+      "spreadMedian": 0.95,
+      "spreadP75": 0.96,
+      "spreadAtLeast5c": 0.8628492928283743,
+      "liquidityMedianUsd": 7
+    },
+    "slow": {
+      "markets": 21954,
+      "volume24hUsd": 16847666,
+      "top1PctShare": 0.7156348600285234,
+      "top10PctShare": 0.9673147402859661,
+      "under1kDaily": 0.9470255989796847,
+      "zeroDaily": 0.6001184294433816,
+      "twoSidedShare": 0.9144575020497404,
+      "spreadMedian": 0.02100000000000002,
+      "spreadP75": 0.07,
+      "spreadAtLeast5c": 0.3233213787607093,
+      "liquidityMedianUsd": 1730
+    },
+    "addressable": {
+      "markets": 17766,
+      "volume24hUsd": 13248981,
+      "top1PctShare": 0.7259934782996719,
+      "top10PctShare": 0.9641458698311853,
+      "under1kDaily": 0.9473150962512664,
+      "zeroDaily": 0.5871327254305978,
+      "twoSidedShare": 0.9195654621186536,
+      "spreadMedian": 0.027000000000000003,
+      "spreadP75": 0.078,
+      "spreadAtLeast5c": 0.3480443165819918,
+      "liquidityMedianUsd": 1590
+    },
+    "addressableLongTail": {
+      "markets": 16830,
+      "sampledBooks": 400,
+      "depthWithin2cMedianUsd": 3,
+      "depthWithin2cP25Usd": 0,
+      "bookSpreadMedian": 0.023,
+      "bookSpreadP75": 0.08
+    },
+    "topCategories": [
+      {
+        "category": "Midterms",
+        "markets": 4632,
+        "volume24hUsd": 127666.74195899979
+      },
+      {
+        "category": "Politics",
+        "markets": 2139,
+        "volume24hUsd": 2933444.5393600017
+      },
+      {
+        "category": "AI",
+        "markets": 1443,
+        "volume24hUsd": 1106664.978300998
+      },
+      {
+        "category": "Brazil",
+        "markets": 1208,
+        "volume24hUsd": 481145.7862909999
+      },
+      {
+        "category": "Finance",
+        "markets": 999,
+        "volume24hUsd": 519034.33010300033
+      },
+      {
+        "category": "Crypto",
+        "markets": 751,
+        "volume24hUsd": 798578.9228300003
+      },
+      {
+        "category": "World",
+        "markets": 400,
+        "volume24hUsd": 102429.87829599995
+      },
+      {
+        "category": "turnout",
+        "markets": 361,
+        "volume24hUsd": 8161.867604999997
+      },
+      {
+        "category": "Trump",
+        "markets": 342,
+        "volume24hUsd": 119204.006272
+      },
+      {
+        "category": "Canada",
+        "markets": 308,
+        "volume24hUsd": 13475.590592000004
+      },
+      {
+        "category": "Tech",
+        "markets": 284,
+        "volume24hUsd": 18161.545780000008
+      },
+      {
+        "category": "Culture",
+        "markets": 229,
+        "volume24hUsd": 615147.067391
+      },
+      {
+        "category": "Music",
+        "markets": 153,
+        "volume24hUsd": 41245.21169799999
+      },
+      {
+        "category": "Games",
+        "markets": 151,
+        "volume24hUsd": 4483.949486
+      },
+      {
+        "category": "Peru",
+        "markets": 148,
+        "volume24hUsd": 11448.876798000003
+      }
+    ]
+  },
+  "hip4": {
+    "markets": 230,
+    "twoSided": 230,
+    "spreadMedian": 0.044729999999999936,
+    "spreadP75": 0.23989
+  }
+}
