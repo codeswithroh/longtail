@@ -1,0 +1,353 @@
+{
+  "address": "0x66B3A4B691699d0fbA15CefF3B7f11c71f3C9667",
+  "network": "hyperliquid-testnet",
+  "dryRun": false,
+  "startedAt": 1793475934213,
+  "updatedAt": 1793475935334,
+  "cycles": 1,
+  "usdc": 42.279,
+  "markets": [
+    {
+      "id": "102180",
+      "question": "May CPI year-over-year: This outcome resolves to Yes if the one-decimal BLS CPI year-over-year value for May 2026 is below 4.3%. (May CPI year-over-year)"
+    },
+    {
+      "id": "102250",
+      "question": "June Fed rate change: The market resolves to Change if the upper bound of the target federal funds rate range in the Federal Open Market Committee (FOMC) statement for the meeting currently scheduled for June 16-17, 2026 differs from the upper bound of the target range set by the most recent prior FOMC statement. Otherwise, the market resolves to No Change. The market also resolves to No Change if the June 16-17, 2026 meeting is canceled, or if no FOMC statement containing a rate decision for that meeting is released by 23:59 ET on July 29, 2026. The target range stated in the FOMC statement for the June 16-17, 2026 meeting determines the result. If that statement is unavailable or does not clearly state the target range, the post-meeting target range upper bound shown on the Federal Reserve's open market operations page determines the result. Resolution uses the initially released decision; later revisions after resolution are not considered. Scheduled meeting dates and source references are provided for convenience and are not binding terms of resolution."
+    },
+    {
+      "id": "102480",
+      "question": "2026 World Cup champion: This outcome resolves to Yes if England is officially declared the 2026 HYPURR World Cup champion. (2026 World Cup champion)"
+    },
+    {
+      "id": "102490",
+      "question": "2026 World Cup champion: This outcome resolves to Yes if France is officially declared the 2026 HYPURR World Cup champion. (2026 World Cup champion)"
+    },
+    {
+      "id": "102800",
+      "question": "2026 World Cup champion: This outcome resolves to Yes if Hypurrnation is officially declared the 2026 HYPURR World Cup champion. (2026 World Cup champion)"
+    },
+    {
+      "id": "104000",
+      "question": "World Cup: Iran vs New Zealand: This outcome resolves to Yes if the Game ends in a draw, or if the Game is canceled or not completed by July 19, 2026 at 23:59 UTC without FIFA officially declaring a winner. (World Cup: Iran vs New Zealand)"
+    },
+    {
+      "id": "104390",
+      "question": "World Cup: Belgium vs Egypt: This outcome resolves to Yes if Belgium wins the Game. (World Cup: Belgium vs Egypt)"
+    },
+    {
+      "id": "104450",
+      "question": "World Cup: Spain vs Cape Verde: This outcome resolves to Yes if Cape Verde wins the Game. (World Cup: Spain vs Cape Verde)"
+    },
+    {
+      "id": "104740",
+      "question": "World Cup: France vs Senegal: This outcome resolves to Yes if France wins the Game. (World Cup: France vs Senegal)"
+    },
+    {
+      "id": "104860",
+      "question": "World Cup: Austria vs Jordan: This outcome resolves to Yes if Austria wins the Game. (World Cup: Austria vs Jordan)"
+    },
+    {
+      "id": "104900",
+      "question": "World Cup: Portugal vs Congo DR: This outcome resolves to Yes if Portugal wins the Game. (World Cup: Portugal vs Congo DR)"
+    },
+    {
+      "id": "104980",
+      "question": "World Cup: Ghana vs Panama: This outcome resolves to Yes if Ghana wins the Game. (World Cup: Ghana vs Panama)"
+    }
+  ],
+  "lastOrders": [
+    {
+      "marketId": "102180",
+      "side": "bidYes",
+      "asset": 100102180,
+      "price": 0.08,
+      "size": 137,
+      "status": "resting",
+      "question": "May CPI year-over-year: This outcome resolves to Yes if the one-decimal BLS CPI year-over-year value for May 2026 is below 4.3%. (May CPI year-over-year)",
+      "venueSpread": null,
+      "oid": 64190689273
+    },
+    {
+      "marketId": "102180",
+      "side": "bidNo",
+      "asset": 100102181,
+      "price": 0.747,
+      "size": 14,
+      "status": "resting",
+      "question": "May CPI year-over-year: This outcome resolves to Yes if the one-decimal BLS CPI year-over-year value for May 2026 is below 4.3%. (May CPI year-over-year)",
+      "venueSpread": null,
+      "oid": 64190689274
+    }
+  ],
+  "fills": [
+    {
+      "coin": "#102181",
+      "px": "0.376",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791038386186,
+      "startPosition": "0.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xbee8cef6f67f4f6cc062042ad15ade010100e6dc91726e3e62b17a49b5732957",
+      "oid": 61747477498,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 458756061926069,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102180",
+      "px": "0.314",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791038397558,
+      "startPosition": "0.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xa7493e5383a80c77a8c2042ad15b8601040056391eab2b494b11e9a642abe662",
+      "oid": 61747477497,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 143569259757842,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.376",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791038459233,
+      "startPosition": "5.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x591172dcebd6812b5a8b042ad15ef900004c8ac286d99ffdfcda1e2faada5b15",
+      "oid": 61747477498,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 233162410957042,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102180",
+      "px": "0.314",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791038460514,
+      "startPosition": "5.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xd23bd81997c5cfbfd3b5042ad15f0a010200efff32c8ee917604836c56c9a9aa",
+      "oid": 61747477497,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 463476276358212,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.44",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791039125718,
+      "startPosition": "10.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xc1461be73c7897a4c2bf042ad186be01010033ccd77bb676650ec739fb7c718f",
+      "oid": 61748028934,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 691063018773514,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102180",
+      "px": "0.227",
+      "sz": "5.0",
+      "side": "B",
+      "time": 1791039126950,
+      "startPosition": "10.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xd3bd4129f13efdcad536042ad186d3010400590f8c321c9c7785ec7cb032d7b5",
+      "oid": 61748028933,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 104498601290736,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.342",
+      "sz": "16.0",
+      "side": "B",
+      "time": 1791603076421,
+      "startPosition": "15.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x50693d24c2690da751e2042b559c160000a4550a5d6c2c79f431e877816ce791",
+      "oid": 62311146116,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 628854224658717,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.202",
+      "sz": "10.0",
+      "side": "B",
+      "time": 1792093924120,
+      "startPosition": "31.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x48fd089689d0445a4a76042bcb0e59000038207c24d3632cecc5b3e948d41e44",
+      "oid": 62816732869,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 472996731396492,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102180",
+      "px": "0.698",
+      "sz": "10.0",
+      "side": "B",
+      "time": 1792238417656,
+      "startPosition": "15.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x8d4a8dd5aca85fe88ec4042bed39c7010f00a5bb47ab7eba311339286bac39d3",
+      "oid": 62960397509,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 752085251275016,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.17",
+      "sz": "2.0",
+      "side": "B",
+      "time": 1792339910394,
+      "startPosition": "41.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x13a41d5f1a4e5856151d042c044af70109003544b5417728b76cc8b1d9423240",
+      "oid": 63058646516,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 353374104305219,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102180",
+      "px": "0.569",
+      "sz": "2.0",
+      "side": "B",
+      "time": 1792339913257,
+      "startPosition": "25.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0xd119872ec8f4cc39d293042c044b260101009f1463f7eb0b74e2328187f8a624",
+      "oid": 63058646515,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 554190812508934,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.598",
+      "sz": "18.0",
+      "side": "B",
+      "time": 1793116933850,
+      "startPosition": "43.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x4bee0d8903f00f514d67042cbcac62010500256e9ef32e23efb6b8dbc2f3e93b",
+      "oid": 63826076670,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 1117535744857848,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.847",
+      "sz": "12.0",
+      "side": "B",
+      "time": 1793378633456,
+      "startPosition": "61.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x6094bbc75188597f620e042cfc07c9010300d3acec8b7851045d671a108c336a",
+      "oid": 64099805299,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 467507504471801,
+      "feeToken": "USDC",
+      "twapId": null
+    },
+    {
+      "coin": "#102181",
+      "px": "0.816",
+      "sz": "13.0",
+      "side": "B",
+      "time": 1793414908953,
+      "startPosition": "73.0",
+      "dir": "Buy",
+      "closedPnl": "0.0",
+      "hash": "0x5f9c2bfabe05d5476115042d049b5401070101e05908f4190364d74d7d09af32",
+      "oid": 64135071234,
+      "crossed": false,
+      "fee": "0.0",
+      "tid": 983204016143294,
+      "feeToken": "USDC",
+      "twapId": null
+    }
+  ],
+  "recent": [
+    {
+      "t": 1793475934213,
+      "placed": [
+        {
+          "marketId": "102180",
+          "side": "bidYes",
+          "asset": 100102180,
+          "price": 0.08,
+          "size": 137,
+          "status": "resting",
+          "question": "May CPI year-over-year: This outcome resolves to Yes if the one-decimal BLS CPI year-over-year value for May 2026 is below 4.3%. (May CPI year-over-year)",
+          "venueSpread": null,
+          "oid": 64190689273
+        },
+        {
+          "marketId": "102180",
+          "side": "bidNo",
+          "asset": 100102181,
+          "price": 0.747,
+          "size": 14,
+          "status": "resting",
+          "question": "May CPI year-over-year: This outcome resolves to Yes if the one-decimal BLS CPI year-over-year value for May 2026 is below 4.3%. (May CPI year-over-year)",
+          "venueSpread": null,
+          "oid": 64190689274
+        }
+      ],
+      "cancelled": 0
+    }
+  ]
+}
